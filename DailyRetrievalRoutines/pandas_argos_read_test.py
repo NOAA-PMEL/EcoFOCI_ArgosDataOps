@@ -42,4 +42,7 @@ df = pd.read_csv(filein,delimiter='\s+',header=0,
 df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
 df.drop('year_doy_hhmm',axis=1,inplace=True)
 
+# sst
+df['sst']= df.apply(lambda row: sst_exits(row['s1'], row['s2']), axis=1)
+
 dfh = df.resample('1H',closed='right', label='right').mean().interpolate()
