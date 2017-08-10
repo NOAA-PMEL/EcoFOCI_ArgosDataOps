@@ -25,11 +25,22 @@ Position     Length     Field
 25             8         Checksum                    Modulus 256 of sum of previous 3 bytes
 32 bytes total     
 
+TODO:
+  Turn data ingest into a class.  Make string conversions a method.
+
 """
 import argparse
 import pandas as pd
 import datetime
 
+
+def sst_argos_old(s1,s2):
+    try:
+        output = int(format(int(s1,16),'08b') + format(int(s2,16),'08b')[6:],2) 
+        output = (output * 0.04) - 2.0   
+    except:
+        output = 1e35
+    return output
 
 def sst_argos(s1,s2):
     try:
@@ -74,6 +85,7 @@ def checksum_argos(s1,s2,s3,s4):
 # parse incoming command line options
 parser = argparse.ArgumentParser(description='Read Argos formatted drifterid.yyyy files')
 parser.add_argument('sourcefile', metavar='sourcefile', type=str, help='path to yearly drifter files parsed by ID')
+parser.add_argument('version', metavar='version', type=str, help='v1-metocean(pre-2017),v2-vendor(2017)')
 
 args = parser.parse_args()
 
@@ -88,12 +100,23 @@ df = pd.read_csv(args.sourcefile,delimiter='\s+',header=0,
 df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
 df.drop('year_doy_hhmm',axis=1,inplace=True)
 
-# sst
-df['strain']= df.apply(lambda row: strain_argos(row['s1']), axis=1)
-# sst
-df['voltage']= df.apply(lambda row: voltage_argos(row['s2']), axis=1)
-# sst
-df['sst']= df.apply(lambda row: sst_argos(row['s2'], row['s3']), axis=1)
-# sst
-df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
-
+if args.version in ['v1','V1','version1','v1-metocean']:
+  # sst
+  df['strain']= df.apply(lambda row: strain_argos(row['s1']), axis=1)
+  # sst
+  df['voltage']= df.apply(lambda row: voltage_argos(row['s2']), axis=1)
+  # sst
+  df['sst']= df.apply(lambda row: sst_argos_old(row['s1'], row['s2']), axis=1)
+  # sst
+  df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
+elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
+  # sst
+  df['strain']= df.apply(lambda row: strain_argos(row['s1']), axis=1)
+  # sst
+  df['voltage']= df.apply(lambda row: voltage_argos(row['s2']), axis=1)
+  # sst
+  df['sst']= df.apply(lambda row: sst_argos(row['s2'], row['s3']), axis=1)
+  # sst
+  df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
+else:
+  print("No recognized argos-pmel version")
