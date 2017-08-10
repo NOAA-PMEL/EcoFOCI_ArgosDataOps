@@ -16,21 +16,61 @@ downsample (either through decimation or averaging)
 
 upsample (interpolate then average/decimate or average/decimate then interpolate)
 
-"""
+--
+#Data Key for non-metocean sensors
+Position     Length     Field     
+1              8          Strain                     N / 100  (percentage)
+9              6          Battery voltage            N * 0.2 + 5
+15             10        Sea surface temperature     N * 0.04 – 2.00
+25             8         Checksum                    Modulus 256 of sum of previous 3 bytes
+32 bytes total     
 
+"""
+import argparse
 import pandas as pd
 import datetime
 
 
-def sst_exits(s1,s2):
+def sst_argos(s1,s2):
     try:
-        output = int(bin(int(s1,16))[8:10]+bin(int(s2,16))[2:],2) 
+        output = int(format(int(s1,16),'08b')[6:] + format(int(s2,16),'08b'),2) 
         output = (output * 0.04) - 2.0   
     except:
         output = 1e35
     return output
 
-filein='/Volumes/WDC_internal/Users/bell/Programs/Python/ArgosDataOps/DailyRetrievalRoutines/yearlyArgosID/148276.y2017'
+def strain_argos(s1):
+    try:
+      converted_word = int(format(int(s1,16),'08b'),2)
+      output = converted_word / 100.
+    except:
+      output = 1e35
+    return output
+
+def voltage_argos(s1):
+    try:
+        converted_word = int(format(int(s1,16),'08b')[:6],2)
+        output = (converted_word * 0.2) + 5   
+    except:
+        output = 1e35
+    return output
+
+def checksum_argos(s1,s2,s3,s4):
+    try:
+        converted_word = int(format(int(s1,16),'08b'),2) + \
+                         int(format(int(s2,16),'08b'),2) + \
+                         int(format(int(s3,16),'08b'),2)
+        checksum_test = converted_word % 256 
+        if  checksum_test == int(format(int(s4,16),'08b'),2):
+          output = True
+        else:
+          output = False
+    except:
+        output = 1e35
+    return output
+
+"""---------------------------------------------------------Main--------------------------------------------------------------"""
+filein='/Users/bell/ecoraid/ArgosDataRetrieval/Archive/2017/139910.y2017'
 argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
 
 header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
@@ -43,6 +83,11 @@ df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
 df.drop('year_doy_hhmm',axis=1,inplace=True)
 
 # sst
-df['sst']= df.apply(lambda row: sst_exits(row['s1'], row['s2']), axis=1)
+df['strain']= df.apply(lambda row: strain_argos(row['s1']), axis=1)
+# sst
+df['voltage']= df.apply(lambda row: voltage_argos(row['s2']), axis=1)
+# sst
+df['sst']= df.apply(lambda row: sst_argos(row['s2'], row['s3']), axis=1)
+# sst
+df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
 
-dfh = df.resample('1H',closed='right', label='right').mean().interpolate()
