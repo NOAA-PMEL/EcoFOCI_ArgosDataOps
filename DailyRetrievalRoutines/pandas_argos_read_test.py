@@ -70,11 +70,17 @@ def checksum_argos(s1,s2,s3,s4):
     return output
 
 """---------------------------------------------------------Main--------------------------------------------------------------"""
-filein='/Users/bell/ecoraid/ArgosDataRetrieval/Archive/2017/139910.y2017'
+
+# parse incoming command line options
+parser = argparse.ArgumentParser(description='Read Argos formatted drifterid.yyyy files')
+parser.add_argument('sourcefile', metavar='sourcefile', type=str, help='path to yearly drifter files parsed by ID')
+
+args = parser.parse_args()
+
 argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
 
 header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
-df = pd.read_csv(filein,delimiter='\s+',header=0,
+df = pd.read_csv(args.sourcefile,delimiter='\s+',header=0,
   names=header,index_col=False,
   dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str},
   parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
