@@ -48,7 +48,7 @@ def read_drifter(file_in, datain, isemptydata):
             counter +=1
     return datadic
 
-def sst_exits(x):
+def sst_exits(s1,s2):
     try:
         output = int(format(int(s1,16),'08b')[6:] + format(int(s2,16),'08b'),2)   
     except:
@@ -267,7 +267,7 @@ if args.csv:
         doy = [datetime.timedelta(float(x[4])-1) for x in drifter_data['DATA']] 
         fracday = [datetime.timedelta(float(x[5][:2])/24.) + datetime.timedelta(float(x[5][2:])/(60.*24.)) for x in drifter_data['DATA']] 
 
-        sst = [sst_exits(x) for x in drifter_data['DATA']] #helper function sst_exits defined above
+        sst = [sst_exits(x[7],x[8]) for x in drifter_data['DATA']] #helper function sst_exits defined above
         sst = (np.array(sst) * 0.04) - 2.
                     
         sample_date = [a + b + c for a, b, c in zip(fracday, doy, year)]

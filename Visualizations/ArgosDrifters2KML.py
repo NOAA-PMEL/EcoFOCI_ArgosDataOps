@@ -102,7 +102,7 @@ def read_drifter(file_in, datain, isemptydata):
             counter +=1
     return datadic
 
-def sst_exits(x):
+def sst_exits(s1,s2):
     try:
         output = int(format(int(s1,16),'08b')[6:] + format(int(s2,16),'08b'),2)   
     except:
@@ -353,7 +353,7 @@ if args.png or args.svg:
             doy = [float(x[3]) for x in drifter_data['DATA']] 
             doy = np.array(doy)
         
-            sst = [sst_exits(x) for x in drifter_data['DATA']] #helper function sst_exits defined above
+            sst = [sst_exits(x[7],x[8]) for x in drifter_data['DATA']] #helper function sst_exits defined above
             sst = (np.array(sst) * 0.04) - 2.
             
         else:
@@ -366,7 +366,7 @@ if args.png or args.svg:
             doy = [float(x[4]) for x in drifter_data['DATA']] 
             doy = np.array(doy)
         
-            sst = [sst_exits(x) for x in drifter_data['DATA']] #helper function sst_exits defined above
+            sst = [sst_exits(x[7],x[8]) for x in drifter_data['DATA']] #helper function sst_exits defined above
             sst = (np.array(sst) * 0.04) - 2.
                                         
         ## plot boundaries for topography
