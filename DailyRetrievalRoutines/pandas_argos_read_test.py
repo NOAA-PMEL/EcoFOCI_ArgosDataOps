@@ -33,6 +33,39 @@ import argparse
 import pandas as pd
 import datetime
 
+class ARGOS_SERVICE(object):
+    r"""Download and parse data from the University of Wyoming's upper air archive."""
+
+    @staticmethod
+    def get_data(filename=None, ARGOS_Type=None):
+        r"""
+        Basic Method to open files.  Specific actions can be passes as kwargs for instruments
+        """
+
+        fobj = open(filename)
+        data = fobj.read()
+
+
+        buf = data
+        return BytesIO(buf.strip())
+
+    @staticmethod
+    def drifter_parse(fobj):
+        r"""
+
+        """
+        argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
+
+        header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
+        df = pd.read_csv(fobj,delimiter='\s+',header=0,
+          names=header,index_col=False,
+          dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str},
+          parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
+
+        df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
+        df.drop('year_doy_hhmm',axis=1,inplace=True)
+
+        return df
 
 def sst_argos(s1,s2):
     try:
