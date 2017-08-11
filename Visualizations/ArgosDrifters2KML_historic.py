@@ -420,7 +420,7 @@ if args.png:
 
     
         m.contourf(ex,ey,topoin, etopo_levels=[-1000, -200, -100, -70, ], colors=('#737373','#969696','#bdbdbd','#d9d9d9','#f0f0f0'), extend='both', alpha=.75)
-        m.scatter(x,y,20,marker='.', edgecolors='none', c=doy, vmin=0, vmax=365, cmap='jet')
+        m.scatter(x,y,20,marker='.', edgecolors='none', c=doy, vmin=0, vmax=365, cmap=cmocean.cm.phase)
         c = plt.colorbar()
         c.set_label("Julian Day")
 
@@ -483,7 +483,7 @@ if args.png:
         m.contourf(ex,ey,topoin, etopo_levels=[-1000, -200, -100, -70, ], colors=('#737373','#969696','#bdbdbd','#d9d9d9','#f0f0f0'), extend='both', alpha=.75)
         my_cmap = mpl.cm.get_cmap('bwr')
         my_cmap.set_under('k')
-        m.scatter(x,y,20,marker='.', edgecolors='none', c=sst, vmin=-5, vmax=20, cmap='seismic')
+        m.scatter(x,y,20,marker='.', edgecolors='none', c=sst, vmin=-5, vmax=20, cmap=cmocean.cm.thermal)
         c = plt.colorbar()
         c.set_label("SST")
     

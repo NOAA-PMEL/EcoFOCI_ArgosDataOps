@@ -25,6 +25,7 @@ mpl.use('Agg')
 from mpl_toolkits.basemap import Basemap, shiftgrid
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import cmocean
 
 #user stack
 import utilities.ConfigParserLocal as ConfigParserLocal
@@ -406,7 +407,7 @@ if args.png or args.svg:
 
     
         m.contourf(ex,ey,topoin, levels=etopo_levels, colors=('#737373','#969696','#bdbdbd','#d9d9d9','#f0f0f0'), extend='both', alpha=.75)
-        m.scatter(x,y,20,marker='.', edgecolors='none', c=doy, vmin=0, vmax=365, cmap='jet')
+        m.scatter(x,y,20,marker='.', edgecolors='none', c=doy, vmin=0, vmax=365, cmap=cmocean.cm.phase)
         c = plt.colorbar()
         c.set_label("Julian Day")
 
@@ -469,7 +470,7 @@ if args.png or args.svg:
         m.contourf(ex,ey,topoin, levels=etopo_levels, colors=('#737373','#969696','#bdbdbd','#d9d9d9','#f0f0f0'), extend='both', alpha=.75)
         my_cmap = mpl.cm.get_cmap('bwr')
         my_cmap.set_under('k')
-        m.scatter(x,y,20,marker='.', edgecolors='none', c=sst, vmin=-5, vmax=20, cmap='seismic')
+        m.scatter(x,y,20,marker='.', edgecolors='none', c=sst, vmin=-5, vmax=20, cmap=cmocean.cm.thermal)
         c = plt.colorbar()
         c.set_label("SST")
     
