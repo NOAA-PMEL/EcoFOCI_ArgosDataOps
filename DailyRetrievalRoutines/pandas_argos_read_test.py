@@ -34,14 +34,6 @@ import pandas as pd
 import datetime
 
 
-def sst_argos_old(s1,s2):
-    try:
-        output = int(format(int(s1,16),'08b') + format(int(s2,16),'08b')[6:],2) 
-        output = (output * 0.04) - 2.0   
-    except:
-        output = 1e35
-    return output
-
 def sst_argos(s1,s2):
     try:
         output = int(format(int(s1,16),'08b')[6:] + format(int(s2,16),'08b'),2) 
@@ -50,10 +42,13 @@ def sst_argos(s1,s2):
         output = 1e35
     return output
 
-def strain_argos(s1):
+def strain_argos(s1,manufacter='MetOcean'):
     try:
       converted_word = int(format(int(s1,16),'08b'),2)
-      output = converted_word / 100.
+      if manufacter == 'MetOcean':
+        output = converted_word
+      else:
+        output = converted_word / 100.
     except:
       output = 1e35
     return output
@@ -102,11 +97,11 @@ df.drop('year_doy_hhmm',axis=1,inplace=True)
 
 if args.version in ['v1','V1','version1','v1-metocean']:
   # sst
-  df['strain']= df.apply(lambda row: strain_argos(row['s1']), axis=1)
+  df['strain']= df.apply(lambda row: strain_argos(row['s1'],manufacter='MetOcean'), axis=1)
   # sst
   df['voltage']= df.apply(lambda row: voltage_argos(row['s2']), axis=1)
   # sst
-  df['sst']= df.apply(lambda row: sst_argos_old(row['s1'], row['s2']), axis=1)
+  df['sst']= df.apply(lambda row: sst_argos(row['s2'], row['s3']), axis=1)
   # sst
   df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
 elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
