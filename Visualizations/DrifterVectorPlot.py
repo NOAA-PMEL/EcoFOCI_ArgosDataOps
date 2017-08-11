@@ -50,7 +50,7 @@ def read_drifter(file_in, datain, isemptydata):
 
 def sst_exits(x):
     try:
-        output = int(bin(int(x[7],16))[8:10]+bin(int(x[8],16))[2:],2)    
+        output = int(format(int(s1,16),'08b')[6:] + format(int(s2,16),'08b'),2)   
     except:
         output = -500
     return output
