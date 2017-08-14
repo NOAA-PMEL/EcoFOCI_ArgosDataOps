@@ -31,6 +31,7 @@ TODO:
 """
 import argparse
 import pandas as pd
+from io import BytesIO
 import datetime
 
 class ARGOS_SERVICE(object):
@@ -51,6 +52,24 @@ class ARGOS_SERVICE(object):
 
     @staticmethod
     def drifter_parse(fobj):
+        r"""
+
+        """
+        argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
+
+        header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
+        df = pd.read_csv(fobj,delimiter='\s+',header=0,
+          names=header,index_col=False,
+          dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str},
+          parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
+
+        df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
+        df.drop('year_doy_hhmm',axis=1,inplace=True)
+
+        return df
+
+    @staticmethod
+    def mooring_parse(fobj):
         r"""
 
         """
@@ -113,38 +132,37 @@ def checksum_argos(s1,s2,s3,s4):
 # parse incoming command line options
 parser = argparse.ArgumentParser(description='Read Argos formatted drifterid.yyyy files')
 parser.add_argument('sourcefile', metavar='sourcefile', type=str, help='path to yearly drifter files parsed by ID')
-parser.add_argument('version', metavar='version', type=str, help='v1-metocean(pre-2017),v2-vendor(2017)')
+parser.add_argument('version', metavar='version', type=str, help='buoy,v1-metocean(pre-2017),v2-vendor(2017)')
+parser.add_argument('-csv','--csv', type=str, help='output as csv - full path')
 
 args = parser.parse_args()
 
-argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
+atseadata = ARGOS_SERVICE()
 
-header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
-df = pd.read_csv(args.sourcefile,delimiter='\s+',header=0,
-  names=header,index_col=False,
-  dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str},
-  parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
-
-df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
-df.drop('year_doy_hhmm',axis=1,inplace=True)
+df = atseadata.drifter_parse(atseadata.get_data(args.sourcefile))
 
 if args.version in ['v1','V1','version1','v1-metocean']:
-  # sst
-  df['strain']= df.apply(lambda row: strain_argos(row['s1'],manufacter='MetOcean'), axis=1)
-  # sst
-  df['voltage']= df.apply(lambda row: voltage_argos(row['s2']), axis=1)
-  # sst
-  df['sst']= df.apply(lambda row: sst_argos(row['s2'], row['s3']), axis=1)
-  # sst
-  df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
+    # sst
+    df['strain']= df.apply(lambda row: strain_argos(row['s1'],manufacter='MetOcean'), axis=1)
+    # sst
+    df['voltage']= df.apply(lambda row: voltage_argos(row['s2']), axis=1)
+    # sst
+    df['sst']= df.apply(lambda row: sst_argos(row['s2'], row['s3']), axis=1)
+    # sst
+    df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
 elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
-  # sst
-  df['strain']= df.apply(lambda row: strain_argos(row['s1']), axis=1)
-  # sst
-  df['voltage']= df.apply(lambda row: voltage_argos(row['s2']), axis=1)
-  # sst
-  df['sst']= df.apply(lambda row: sst_argos(row['s2'], row['s3']), axis=1)
-  # sst
-  df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
+    # sst
+    df['strain']= df.apply(lambda row: strain_argos(row['s1']), axis=1)
+    # sst
+    df['voltage']= df.apply(lambda row: voltage_argos(row['s2']), axis=1)
+    # sst
+    df['sst']= df.apply(lambda row: sst_argos(row['s2'], row['s3']), axis=1)
+    # sst
+    df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
+elif args.version in ['buoy','met','sfc_package']:
+    pass
 else:
-  print("No recognized argos-pmel version")
+    print("No recognized argos-pmel version")
+
+if args.csv:
+    df.to_csv(args.csv)
