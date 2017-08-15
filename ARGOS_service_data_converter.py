@@ -279,7 +279,7 @@ if args.version in ['v1','V1','version1','v1-metocean']:
     df['voltage']= df.apply(lambda row: atseadata.voltage_argos(row['s2']), axis=1)
     df['sst']= df.apply(lambda row: atseadata.sst_argos(row['s2'], row['s3']), axis=1)
     df['checksum']= df.apply(lambda row: atseadata.checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
-    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'])
+    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'], axis=1, inplace=True)
 
 elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
     
@@ -308,7 +308,7 @@ elif args.version in ['buoy','met','sfc_package']:
     df['SR']= df.apply(lambda row: atseadata.SR(row['s11']), axis=1)
     df['AZ']= df.apply(lambda row: atseadata.AZ(row['s12']), axis=1)
 
-    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'])
+    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], axis=1, inplace=True)
     
 else:
     print("No recognized argos-pmel version")
