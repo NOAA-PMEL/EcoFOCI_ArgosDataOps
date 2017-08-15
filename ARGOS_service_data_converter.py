@@ -313,5 +313,9 @@ elif args.version in ['buoy','met','sfc_package']:
 else:
     print("No recognized argos-pmel version")
 
+if args.config:
+config_settings = ConfigParserLocal.get_config_yaml(args.config)
+df.ix[config_settings['Mooring']['StartDate']:config_settings['Mooring']['EndDate']]
+
 if args.csv:
     df.to_csv(args.csv)
