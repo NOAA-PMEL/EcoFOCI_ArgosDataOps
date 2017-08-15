@@ -68,7 +68,7 @@ class ARGOS_SERVICE_Drifter(object):
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
 
         df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
-        df.drop('year_doy_hhmm',axis=1,inplace=True)
+        df.drop('year_doy_hhmm',axis=1,inplace=True,axis=1)
 
         return df
 
@@ -151,7 +151,7 @@ class ARGOS_SERVICE_Buoy(object):
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
 
         df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
-        df.drop('year_doy_hhmm',axis=1,inplace=True)
+        df.drop('year_doy_hhmm',axis=1,inplace=True,axis=1)
 
         return df
 
@@ -279,7 +279,7 @@ if args.version in ['v1','V1','version1','v1-metocean']:
     df['voltage']= df.apply(lambda row: atseadata.voltage_argos(row['s2']), axis=1)
     df['sst']= df.apply(lambda row: atseadata.sst_argos(row['s2'], row['s3']), axis=1)
     df['checksum']= df.apply(lambda row: atseadata.checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
-    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'], inplace=True)
+    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'], inplace=True, axis=1)
 
 elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
     
@@ -291,7 +291,7 @@ elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
     df['voltage']= df.apply(lambda row: atseadata.voltage_argos(row['s2']), axis=1)
     df['sst']= df.apply(lambda row: atseadata.sst_argos(row['s2'], row['s3']), axis=1)
     df['checksum']= df.apply(lambda row: atseadata.checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
-    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'], inplace=True)
+    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'], inplace=True, axis=1)
 
 elif args.version in ['buoy','met','sfc_package']:
     
