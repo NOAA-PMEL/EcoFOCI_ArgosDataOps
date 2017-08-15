@@ -25,14 +25,14 @@ Position     Length     Field
 25             8         Checksum                    Modulus 256 of sum of previous 3 bytes
 32 bytes total     
 
-TODO:
-  Turn data ingest into a class.  Make string conversions a method.
 
 """
 import argparse
+import datetime
 import pandas as pd
 from io import BytesIO
-import datetime
+
+from io_utils import ConfigParserLocal
 
 class ARGOS_SERVICE_Drifter(object):
     r"""
@@ -63,7 +63,7 @@ class ARGOS_SERVICE_Drifter(object):
 
         header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
         df = pd.read_csv(fobj,delimiter='\s+',header=0,
-          names=header,index_col=False,
+          names=header,index_col=False,error_bad_lines=False,
           dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str},
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
 
@@ -143,9 +143,10 @@ class ARGOS_SERVICE_Buoy(object):
         """
         argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
 
-        header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
+        header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
+        columns=range(0,18,1)
         df = pd.read_csv(fobj,delimiter='\s+',header=0,
-          names=header,index_col=False,
+          names=header,index_col=False,usecols=columns,error_bad_lines=False,
           dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str,'s9':str,'s10':str,'s11':str,'s12':str},
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
 
@@ -158,8 +159,11 @@ class ARGOS_SERVICE_Buoy(object):
       r"""
         Convert Barometric Pressure
       """
-      output = (int(s1,16) / 0.85 ) + 800
-      if (output > 1060) or (output < 940):
+      try:
+        output = (int(s1,16) / 0.85 ) + 800
+        if (output > 1060) or (output < 940):
+          output = self.missing
+      except:
         output = self.missing
 
       return output
@@ -168,8 +172,11 @@ class ARGOS_SERVICE_Buoy(object):
       r"""
         Convert Air Temperature
       """
-      output = (int(s1+s2,16) / 10. ) - 50.
-      if (output > 40) or (output < -20):
+      try:
+        output = (int((s1+s2),16) / 10. ) - 50.
+        if (output > 40) or (output < -20):
+          output = self.missing
+      except:
         output = self.missing
 
       return output
@@ -178,8 +185,11 @@ class ARGOS_SERVICE_Buoy(object):
       r"""
         Convert Battery Voltage
       """
-      output = (int(s1,16) / 0.85 ) + 800
-      if (output > 40) or (output < 0):
+      try:
+        output = int(s1,16)
+        if (output > 40) or (output < 0):
+          output = self.missing
+      except:
         output = self.missing
 
       return output
@@ -188,8 +198,11 @@ class ARGOS_SERVICE_Buoy(object):
       r"""
         Convert Relative Humidity
       """
-      output = (int(s1,16) / 0.85 ) + 800
-      if (output > 100) or (output < 0):
+      try:
+        output = int(s1,16) 
+        if (output > 100) or (output < 0):
+          output = self.missing
+      except:
         output = self.missing
 
       return output
@@ -198,8 +211,11 @@ class ARGOS_SERVICE_Buoy(object):
       r"""
         Convert Wind Speed
       """
-      output = (int(s1+s2,16) / 10. )
-      if (output > 50) or (output < 0):
+      try:
+        output = (int(s1+s2,16) / 10. )
+        if (output > 50) or (output < 0):
+          output = self.missing
+      except:
         output = self.missing
 
       return output
@@ -208,7 +224,10 @@ class ARGOS_SERVICE_Buoy(object):
       r"""
         Convert Wind Direction (+magnetic declination correction)
       """
-      output = (int(s1,16) / 0.7083 ) + magnetic_dec
+      try:
+        output = (int(s1,16) / 0.7083 ) + magnetic_dec
+      except:
+        output = self.missing
 
       return output
 
@@ -216,8 +235,11 @@ class ARGOS_SERVICE_Buoy(object):
       r"""
         Convert Solar Radiation
       """
-      output = (int(s1,16) / 0.18214 )
-      if (output > 1400) or (output < 0):
+      try:
+        output = (int(s1,16) / 0.18214 )
+        if (output > 1400) or (output < 0):
+          output = self.missing
+      except:
         output = self.missing
 
       return output
@@ -226,8 +248,11 @@ class ARGOS_SERVICE_Buoy(object):
       r"""
         Convert Azimuth angle
       """
-      output = (int(s1,16) / 0.7083 )
-
+      try:
+        output = (int(s1,16) / 0.7083 )
+      except:
+        output = self.missing
+        
       return output
 
 
@@ -239,9 +264,9 @@ parser = argparse.ArgumentParser(description='Read Argos formatted drifterid.yyy
 parser.add_argument('sourcefile', metavar='sourcefile', type=str, help='path to yearly drifter files parsed by ID')
 parser.add_argument('version', metavar='version', type=str, help='buoy,v1-metocean(pre-2017),v2-vendor(2017)')
 parser.add_argument('-csv','--csv', type=str, help='output as csv - full path')
+parser.add_argument('-config','--config', type=str, help='read local config file')
 
 args = parser.parse_args()
-
 
 
 if args.version in ['v1','V1','version1','v1-metocean']:
@@ -250,31 +275,27 @@ if args.version in ['v1','V1','version1','v1-metocean']:
 
     df = atseadata.parse(atseadata.get_data(args.sourcefile))
     
-    # sst
     df['strain']= df.apply(lambda row: atseadata.strain_argos(row['s1'],manufacter='MetOcean'), axis=1)
-    # sst
     df['voltage']= df.apply(lambda row: atseadata.voltage_argos(row['s2']), axis=1)
-    # sst
     df['sst']= df.apply(lambda row: atseadata.sst_argos(row['s2'], row['s3']), axis=1)
-    # sst
-    df['checksum']= df.apply(lambda row: checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
+    df['checksum']= df.apply(lambda row: atseadata.checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
+    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'])
+
 elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
     
     atseadata = ARGOS_SERVICE_Drifter()
 
     df = atseadata.parse(atseadata.get_data(args.sourcefile))
     
-    # sst
     df['strain']= df.apply(lambda row: atseadata.strain_argos(row['s1']), axis=1)
-    # sst
     df['voltage']= df.apply(lambda row: atseadata.voltage_argos(row['s2']), axis=1)
-    # sst
     df['sst']= df.apply(lambda row: atseadata.sst_argos(row['s2'], row['s3']), axis=1)
-    # sst
     df['checksum']= df.apply(lambda row: atseadata.checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
+    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'])
+
 elif args.version in ['buoy','met','sfc_package']:
     
-    atseadata = ARGOS_SERVICE_Buoy()
+    atseadata = ARGOS_SERVICE_Buoy(missing=None)
 
     df = atseadata.parse(atseadata.get_data(args.sourcefile))
 
@@ -286,6 +307,8 @@ elif args.version in ['buoy','met','sfc_package']:
     df['WD']= df.apply(lambda row: atseadata.WD(row['s10']), axis=1)
     df['SR']= df.apply(lambda row: atseadata.SR(row['s11']), axis=1)
     df['AZ']= df.apply(lambda row: atseadata.AZ(row['s12']), axis=1)
+
+    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'])
     
 else:
     print("No recognized argos-pmel version")
