@@ -308,7 +308,7 @@ elif args.version in ['buoy','met','sfc_package']:
     df['SR']= df.apply(lambda row: atseadata.SR(row['s11']), axis=1)
     df['AZ']= df.apply(lambda row: atseadata.AZ(row['s12']), axis=1)
 
-    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], inplace=True)
+    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], inplace=True, axis=1)
     
 else:
     print("No recognized argos-pmel version")
