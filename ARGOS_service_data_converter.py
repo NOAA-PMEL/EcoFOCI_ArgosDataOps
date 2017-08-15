@@ -200,7 +200,7 @@ class ARGOS_SERVICE_Buoy(object):
       """
       try:
         output = int(s1,16) 
-        if (output > 100) or (output < 0):
+        if (output > 100) or (output <= 0):
           output = self.missing
       except:
         output = self.missing
