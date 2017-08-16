@@ -33,6 +33,9 @@ import pandas as pd
 from io import BytesIO
 
 from io_utils import ConfigParserLocal
+from plots import ArgosDrifters
+
+"""-----------------------------------------------------Data Classes----------------------------------------------------------"""
 
 class ARGOS_SERVICE_Drifter(object):
     r"""
@@ -66,6 +69,8 @@ class ARGOS_SERVICE_Drifter(object):
           names=header,index_col=False,error_bad_lines=False,
           dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str},
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
+
+        df['lon']=df['lon'] * -1 #convert to +W
 
         df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
         df.drop('year_doy_hhmm',axis=1,inplace=True)
@@ -114,8 +119,6 @@ class ARGOS_SERVICE_Drifter(object):
             output = self.missing
         return output
 
-
-
 class ARGOS_SERVICE_Buoy(object):
     r"""
 
@@ -149,6 +152,8 @@ class ARGOS_SERVICE_Buoy(object):
           names=header,index_col=False,usecols=columns,error_bad_lines=False,
           dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str,'s9':str,'s10':str,'s11':str,'s12':str},
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
+
+        df['lon']=df['lon'] * -1 #convert to +W
 
         df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
         df.drop('year_doy_hhmm',axis=1,inplace=True)
@@ -265,6 +270,8 @@ parser.add_argument('sourcefile', metavar='sourcefile', type=str, help='path to 
 parser.add_argument('version', metavar='version', type=str, help='buoy,v1-metocean(pre-2017),v2-vendor(2017)')
 parser.add_argument('-csv','--csv', type=str, help='output as csv - full path')
 parser.add_argument('-config','--config', type=str, help='read local config file')
+parser.add_argument('-plot','--plot', action="store_true", help='plot data')
+parser.add_argument('-interpolate','--interpolate', action="store_true", help='interpolate data to hourly')
 
 args = parser.parse_args()
 
@@ -317,5 +324,15 @@ if args.config:
   config_settings = ConfigParserLocal.get_config_yaml(args.config)
   df = df.ix[config_settings['Mooring']['StartDate']:config_settings['Mooring']['EndDate']]
 
+if args.interpolate:
+  #hourly binned with linear interpolation to fill gaps
+  df = df.resample('1H',label='right',closed='right').mean().interpolate(method='linear')
+
 if args.csv:
     df.to_csv(args.csv)
+
+if args.plot:
+  driftermap = ArgosDrifters.ArgosPlot(df=df)
+  #(ax,fig1) = driftermap.make_map(param='doy')
+  (ax,fig1) = driftermap.make_map(param='sst')
+  

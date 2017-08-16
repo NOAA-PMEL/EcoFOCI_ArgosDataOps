@@ -1,9 +1,7 @@
 #!/usr/bin/env
 
 """
-Drifter2KML.py
-
-Generates google earth kml files from eFOCI db and processed .vecdis/.y2014/.asc data
+ArgosDrifters.py
 
 Using Anaconda packaged Python 
 """
@@ -25,23 +23,6 @@ import cmocean
 
 
 """------------------------------------- MAPS -----------------------------------------"""
-
-def etopo5_data():
-    """ read in etopo5 topography/bathymetry. """
-    file = '../data/etopo5.nc'
-    etopodata = Dataset(file)
-    
-    topoin = etopodata.variables['bath'][:]
-    lons = etopodata.variables['X'][:]
-    lats = etopodata.variables['Y'][:]
-    etopodata.close()
-    
-    topoin,lons = shiftgrid(0.,topoin,lons,start=False) # -360 -> 0
-    
-    #lons, lats = np.meshgrid(lons, lats)
-    
-    return(topoin, lats, lons)
-
 
 def find_nearest(a, a0):
     "Element in nd array `a` closest to the scalar value `a0`"
@@ -85,9 +66,9 @@ class ArgosPlot(object):
         self.etopo5(file=etopofile)
 
         #build regional subset of data
-        #self.topoin = self.topoin[find_nearest(self.elats,self.df.lat.min()-5):find_nearest(self.elats,self.df.lat.max()+5),find_nearest(self.elons,-1*(self.df.lon.max()+5)):find_nearest(self.elons,-1*(self.df.lon.min()-5))]
-        #self.elons = self.elons[find_nearest(self.elons,-1*(self.df.lon.max()+5)):find_nearest(self.elons,-1*(self.df.lon.min()-5))]
-        #self.elats = self.elats[find_nearest(self.elats,self.df.lat.min()-5):find_nearest(self.elats,self.df.lat.max()+5)]
+        self.topoin = self.topoin[find_nearest(self.elats,self.df.lat.min()-5):find_nearest(self.elats,self.df.lat.max()+5),find_nearest(self.elons,-1*(self.df.lon.max()+5)):find_nearest(self.elons,-1*(self.df.lon.min()-5))]
+        self.elons = self.elons[find_nearest(self.elons,-1*(self.df.lon.max()+5)):find_nearest(self.elons,-1*(self.df.lon.min()-5))]
+        self.elats = self.elats[find_nearest(self.elats,self.df.lat.min()-5):find_nearest(self.elats,self.df.lat.max()+5)]
 
         #determine regional bounding
         y1 = np.floor(self.df.lat.min()-1)
