@@ -28,26 +28,6 @@ __status__   = "Development"
 __keywords__ = 'gpx', 'shiptrack'
 
 
-def convert_dms_to_dec(value, dir):
-	dPos = str(value).find(".")
-	
-	mPos = dPos - 2
-	ePos = dPos
-	
-	main = float(str(value)[:mPos])	
-	min1 = float(str(value)[mPos:])
-		
-#	print "degrees:'%s', minutes:'%s'\n" % (main, min1)
-	
-	newval = float(main) + float(min1)/float(60)
-	
-	if dir == "W":
-		newval = -newval
-	elif dir == "S":
-		newval = -newval
-	
-	return newval
-
 """------------------------------- MAIN------------------------------------------------"""
 
 parser = argparse.ArgumentParser(description='Convert Argo id.yyyy csv to .gpx files')
