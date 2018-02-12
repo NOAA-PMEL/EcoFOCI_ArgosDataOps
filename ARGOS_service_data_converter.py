@@ -25,6 +25,13 @@ Position     Length     Field
 25             8         Checksum                    Modulus 256 of sum of previous 3 bytes
 32 bytes total     
 
+#Data Key for metocean sensors
+Position     Length     Field     
+1              8          Strain                     N  (percentage)
+9              6          Battery voltage            N * 0.2 + 5
+15             10        Sea surface temperature     N * 0.04 – 2.00
+25             8         Checksum                    Modulus 256 of sum of previous 3 bytes
+32 bytes total     
 
 """
 import argparse
