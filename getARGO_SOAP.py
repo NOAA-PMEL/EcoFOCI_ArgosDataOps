@@ -70,6 +70,6 @@ if args.service in ['getKml']:
     result = client.service.getKml(**subdict)
     filetype = 'kml'
 
-datetime.date.today().strftime('%Y%m%d')
+datestr = datetime.date.today().strftime('%Y%m%d')
 with open("data/" + ".".join(['ARGO_'+datestr,filetype]), 'w') as f:
     f.write(result)
