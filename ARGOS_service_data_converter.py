@@ -33,11 +33,21 @@ Position     Length     Field
 25             8         Checksum                    Modulus 256 of sum of previous 3 bytes
 32 bytes total     
 
+ History:
+ --------
+ 2018-03-12: Add netcdf output option
+
 """
 import argparse
 import datetime
 import pandas as pd
 from io import BytesIO
+from netCDF4 import date2num, num2date
+
+
+#User Stack
+import io_utils.EcoFOCI_netCDF_write as EcF_write
+import io_utils.ConfigParserLocal as ConfigParserLocal
 
 from io_utils import ConfigParserLocal
 from plots import ArgosDrifters
@@ -71,13 +81,13 @@ class ARGOS_SERVICE_Drifter(object):
         """
         argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
 
-        header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
+        header=['argosid','latitude','longitude','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
         df = pd.read_csv(fobj,delimiter='\s+',header=0,
           names=header,index_col=False,error_bad_lines=False,
           dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str},
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
 
-        df['lon']=df['lon'] * -1 #convert to +W
+        df['longitude']=df['longitude'] * -1 #convert to +W
 
         df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
         df.drop('year_doy_hhmm',axis=1,inplace=True)
@@ -153,14 +163,14 @@ class ARGOS_SERVICE_Buoy(object):
         """
         argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
 
-        header=['argosid','lat','lon','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
+        header=['argosid','latitude','longitude','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
         columns=range(0,18,1)
         df = pd.read_csv(fobj,delimiter='\s+',header=0,
           names=header,index_col=False,usecols=columns,error_bad_lines=False,
           dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str,'s9':str,'s10':str,'s11':str,'s12':str},
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
 
-        df['lon']=df['lon'] * -1 #convert to +W
+        df['longitude']=df['longitude'] * -1 #convert to +W
 
         df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
         df.drop('year_doy_hhmm',axis=1,inplace=True)
@@ -268,17 +278,50 @@ class ARGOS_SERVICE_Buoy(object):
       return output
 
 
+def pandas2netcdf(df=None,ofile='data.nc'):
 
-"""---------------------------------------------------------Main--------------------------------------------------------------"""
+    df['time'] = [date2num(x[1],'hours since 1900-01-01T00:00:00Z') for x in enumerate(df.index)]
+
+    EPIC_VARS_dict = ConfigParserLocal.get_config('config_files/drifters.yaml','yaml')
+
+    #create new netcdf file
+    ncinstance = EcF_write.NetCDF_Create_Profile_Ragged1D(savefile=ofile)
+    ncinstance.file_create()
+    ncinstance.sbeglobal_atts(raw_data_file='', 
+        History='File Created from ARGSOS Drifter Data.')
+    ncinstance.dimension_init(recnum_len=len(df))
+    ncinstance.variable_init(EPIC_VARS_dict)
+    ncinstance.add_coord_data(recnum=range(1,len(df)+1))
+    ncinstance.add_data(EPIC_VARS_dict,data_dic=df,missing_values=np.nan,pandas=True)
+    ncinstance.close()
+
+"""--------------------- Main ----------------------------------------------"""
 
 # parse incoming command line options
 parser = argparse.ArgumentParser(description='Read Argos formatted drifterid.yyyy files')
-parser.add_argument('sourcefile', metavar='sourcefile', type=str, help='path to yearly drifter files parsed by ID')
-parser.add_argument('version', metavar='version', type=str, help='buoy,v1-metocean(pre-2017),v2-vendor(2017)')
-parser.add_argument('-csv','--csv', type=str, help='output as csv - full path')
-parser.add_argument('-config','--config', type=str, help='read local config file')
-parser.add_argument('-plot','--plot', action="store_true", help='plot data')
-parser.add_argument('-interpolate','--interpolate', action="store_true", help='interpolate data to hourly')
+parser.add_argument('sourcefile', 
+    metavar='sourcefile', 
+    type=str, 
+    help='path to yearly drifter files parsed by ID')
+parser.add_argument('version', 
+    metavar='version', 
+    type=str, 
+    help='buoy,v1-metocean(pre-2017),v2-vendor(2017)')
+parser.add_argument('-csv','--csv', 
+    type=str, 
+    help='output as csv - full path')
+parser.add_argument('-nc','--netcdf', 
+    type=str, 
+    help='output as netcdf - full path')
+parser.add_argument('-config','--config', 
+    type=str, 
+    help='read local config file')
+parser.add_argument('-plot','--plot', 
+    action="store_true", 
+    help='plot data')
+parser.add_argument('-interpolate','--interpolate', 
+    action="store_true", 
+    help='interpolate data to hourly')
 
 args = parser.parse_args()
 
@@ -335,8 +378,12 @@ if args.interpolate:
   #hourly binned with linear interpolation to fill gaps
   df = df.resample('1H',label='right',closed='right').mean().interpolate(method='linear')
 
+"""------------------------ output options----------------------"""
 if args.csv:
     df.to_csv(args.csv)
+
+if args.netcdf:
+    pandas2netcdf(df=df,ofile=args.netcdf)
 
 if args.plot:
   driftermap = ArgosDrifters.ArgosPlot(df=df)

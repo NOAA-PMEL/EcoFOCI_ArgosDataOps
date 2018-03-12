@@ -1,0 +1,33 @@
+---
+time:
+  name: time
+  generic_name: time
+  longname: date and time since reference time
+  time_origin: '1900-01-01 00:00:00'
+  units: 'hours since 1900-01-01T00:00:00Z'
+latitude:
+  name: latitude
+  generic_name: latitude
+  units: degrees_north
+  longname: 'latitude'
+longitude:
+  name: longitude
+  generic_name: longitude
+  units: degrees_north
+  longname: 'longitude'
+sst:
+  name: sea surface temperature
+  generic_name: sst
+  units: degree_C
+  longname: 'sea surface temperature (degree_C)'
+  standard_name: 'sea_surface_temperature'
+strain:
+  name: strain
+  generic_name: strain
+  units: percent
+  longname: 'strain gauge percent'
+voltage:
+  name: voltage
+  generic_name: voltage
+  longname: 'battery voltage'
+  units: volts 
