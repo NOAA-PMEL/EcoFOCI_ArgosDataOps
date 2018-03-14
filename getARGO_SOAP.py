@@ -15,6 +15,9 @@ Returns:
     
 Author: S.Bell
 
+History:
+  2018-03-14: Make it so either the program number or platform id can be submitted
+
 Note:
     To get an idea of all functions available
     python -mzeep http://ws-argos.clsamerica.com/argosDws/services/DixService?wsdl
@@ -26,8 +29,18 @@ import datetime
 
 # parse incoming command line options
 parser = argparse.ArgumentParser(description='Connect to argos.cls SOAP server for FOCI')
-parser.add_argument('service', metavar='service', type=str,
-                    help='getCsv | getObsCsv | getXml | getKml | getXsd')
+parser.add_argument('service', 
+    metavar='service', 
+    type=str,
+    help='getCsv | getObsCsv | getXml | getKml | getXsd')
+parser.add_argument('-idMode','--idMode',
+    type=str,
+    default='programNumber',
+    help='programNumber | platformId')
+parser.add_argument('-idnumber', '--idnumber',
+    type=str,
+    default='572',
+    help='programNumber: or platformId number desired')
 
 args = parser.parse_args()
 
@@ -35,7 +48,7 @@ client = zeep.Client('http://ws-argos.clsamerica.com/argosDws/services/DixServic
 
 argodic = {'username':'bparker',
            'password':'invest',
-           'programNumber':'572',
+           args.idMode:args.idnumber,
            'period':{'startDate':datetime.date.today()-datetime.timedelta(seconds=24*60*60),'endDate':datetime.date.today()},
            'mostRecentPassages':True,
            'showHeader':True,
@@ -48,7 +61,7 @@ if args.service in ['getCsv']:
     filetype = 'csv'
 
 if args.service in ['getObsCsv']:
-    subkeys = ('username', 'password', 'programNumber','period')
+    subkeys = ('username', 'password', args.idMode,'period')
     subdict = {x: argodic[x] for x in subkeys if x in argodic}
 
     result = client.service.getObsCsv(**subdict)
@@ -56,7 +69,7 @@ if args.service in ['getObsCsv']:
 
     
 if args.service in ['getXml']:
-    subkeys = ('username', 'password', 'programNumber','period',
+    subkeys = ('username', 'password', args.idMode,'period',
                'displayLocation','displayDiagnostic','displaySensor')
     subdict = {x: argodic[x] for x in subkeys if x in argodic}
 
@@ -64,12 +77,18 @@ if args.service in ['getXml']:
     filetype = 'xml'
 
 if args.service in ['getKml']:
-    subkeys = ('username', 'password', 'programNumber','period')
+    subkeys = ('username', 'password', args.idMode,'period')
     subdict = {x: argodic[x] for x in subkeys if x in argodic}
 
     result = client.service.getKml(**subdict)
     filetype = 'kml'
 
 datestr = datetime.date.today().strftime('%Y%m%d')
-with open("data/" + ".".join(['ARGO_'+datestr,filetype]), 'w') as f:
-    f.write(result)
+if args.idMode in ['programNumber']:
+    with open("data/" + ".".join(['ARGO_'+datestr,filetype]), 'w') as f:
+      f.write(result)
+elif args.idMode in ['platformId']:
+    with open("data/" + ".".join(['ARGO_'+args.idnumber+'_'+datestr,filetype]), 'w') as f:
+      f.write(result)
+else:
+    print("No file written")  
