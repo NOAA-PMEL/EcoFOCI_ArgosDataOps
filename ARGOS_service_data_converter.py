@@ -35,6 +35,8 @@ Position     Length     Field
 
  History:
  --------
+ 2018-03-13: Ingest two starter characters that represent time (hour and minute) 
+    and output seconds since midnight.
  2018-03-12: Add netcdf output option
 
 """
@@ -178,6 +180,18 @@ class ARGOS_SERVICE_Buoy(object):
         df.drop('year_doy_hhmm',axis=1,inplace=True)
 
         return df
+
+    def time(self,s1,s2):
+      r"""
+        Convert two hex words which represent hour and min into seconds since midnight
+      """
+      try:
+        output = (int(s1,16) * 3600) + (int(s2,16))
+      except:
+        output = self.missing
+
+      return output
+
 
     def BP(self,s1):
       r"""
@@ -358,6 +372,7 @@ elif args.version in ['buoy','met','sfc_package']:
 
     df = atseadata.parse(atseadata.get_data(args.sourcefile))
 
+    df['seconds']= df.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
     df['BP']= df.apply(lambda row: atseadata.BP(row['s3']), axis=1)
     df['AT']= df.apply(lambda row: atseadata.AT(row['s4'],row['s5']), axis=1)
     df['BV']= df.apply(lambda row: atseadata.BV(row['s6']), axis=1)
