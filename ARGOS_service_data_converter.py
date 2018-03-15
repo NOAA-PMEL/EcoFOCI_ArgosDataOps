@@ -389,7 +389,7 @@ else:
     sys.exit()
 
 if args.config:
-  config_settings = ConfigParserLocal.get_config_yaml(args.config)
+  config_settings = ConfigParserLocal.get_config(args.config,'yaml')
   df = df.ix[config_settings['Mooring']['StartDate']:config_settings['Mooring']['EndDate']]
 
 if args.interpolate:
