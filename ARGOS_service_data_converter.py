@@ -373,6 +373,7 @@ elif args.version in ['buoy','met','sfc_package']:
     df = atseadata.parse(atseadata.get_data(args.sourcefile))
 
     df['seconds']= df.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
+    df['sampletime']= [index.floor('D')+ datetime.timedelta(seconds=row['seconds']) for index, row in df.iterrows()]
     df['BP']= df.apply(lambda row: atseadata.BP(row['s3']), axis=1)
     df['AT']= df.apply(lambda row: atseadata.AT(row['s4'],row['s5']), axis=1)
     df['BV']= df.apply(lambda row: atseadata.BV(row['s6']), axis=1)
@@ -382,7 +383,11 @@ elif args.version in ['buoy','met','sfc_package']:
     df['SR']= df.apply(lambda row: atseadata.SR(row['s11']), axis=1)
     df['AZ']= df.apply(lambda row: atseadata.AZ(row['s12']), axis=1)
 
-    df.drop(['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], axis=1, inplace=True)
+    #Uses sample time instead of transmit/location time
+    df.drop((df[df['seconds'] > 86400]).index, inplace=True)
+    df.set_index(df['sampletime'],inplace=True)
+    
+    df.drop(['sampletime','seconds','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], axis=1, inplace=True)
     
 else:
     print("No recognized argos-pmel version")
@@ -390,6 +395,8 @@ else:
 
 if args.config:
   config_settings = ConfigParserLocal.get_config(args.config,'yaml')
+  print("Constraining data to {start}-{end}".format(start=config_settings['Mooring']['StartDate'],
+                                                    end=config_settings['Mooring']['EndDate']))
   df = df.ix[config_settings['Mooring']['StartDate']:config_settings['Mooring']['EndDate']]
 
 if args.interpolate:
