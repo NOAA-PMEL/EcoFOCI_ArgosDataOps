@@ -8,5 +8,11 @@ Mooring: &16BSM2A
 Mooring: &17BSM2A
   Declination: 11.0
   StartDate: "2017-05-01"
-  EndDate: 
+  EndDate: "2017-09-24"
   MooringID: '17BSM-2A'
+
+Mooring: &18BSM2A
+  Declination: 11.0
+  StartDate: "2017-05-01"
+  EndDate: 
+  MooringID: '18BSM-2A'
