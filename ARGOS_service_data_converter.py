@@ -86,7 +86,7 @@ class ARGOS_SERVICE_Drifter(object):
         argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
 
         header=['argosid','latitude','longitude','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8']
-        df = pd.read_csv(fobj,delimiter='\s+',header=0,
+        df = pd.read_csv(fobj,delimiter='\s+',header=None,
           names=header,index_col=False,error_bad_lines=False,
           dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str},
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
@@ -169,7 +169,7 @@ class ARGOS_SERVICE_Buoy(object):
 
         header=['argosid','latitude','longitude','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
         columns=range(0,18,1)
-        df = pd.read_csv(fobj,delimiter='\s+',header=0,
+        df = pd.read_csv(fobj,delimiter='\s+',header=None,
           names=header,index_col=False,usecols=columns,error_bad_lines=False,
           dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str,'s9':str,'s10':str,'s11':str,'s12':str},
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
@@ -371,7 +371,7 @@ elif args.version in ['buoy','met','sfc_package']:
     atseadata = ARGOS_SERVICE_Buoy(missing=None)
 
     df = atseadata.parse(atseadata.get_data(args.sourcefile))
-
+    
     df['seconds']= df.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
     df['sampletime']= [index.floor('D')+ datetime.timedelta(seconds=row['seconds']) for index, row in df.iterrows()]
     df['BP']= df.apply(lambda row: atseadata.BP(row['s3']), axis=1)
