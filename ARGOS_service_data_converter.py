@@ -35,6 +35,9 @@ Position     Length     Field
 
  History:
  --------
+ 2018-03-20: Buoy wpak transmitted data has three consecutive hours included.  Use 
+    this data to fill gaps when no location lock was completed.  Option is added as
+    "buoy_3hr" to the version flag
  2018-03-13: Ingest two starter characters that represent time (hour and minute) 
     and output seconds since midnight.
  2018-03-12: Add netcdf output option
@@ -161,17 +164,29 @@ class ARGOS_SERVICE_Buoy(object):
         return BytesIO(buf.strip())
 
     @staticmethod
-    def parse(fobj):
+    def parse(fobj,time='current'):
         r"""
           Date,AT,RH,WS,WD,BP,QS,AZ,BV
         """
         argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
 
-        header=['argosid','latitude','longitude','year','doy','hhmm','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12']
-        columns=range(0,18,1)
+        header=['argosid','latitude','longitude','year',
+                'doy','hhmm','s1','s2','s3','s4','s5',
+                's6','s7','s8','s9','s10','s11','s12']
+        dtype={'year':str,'doy':str,'hhmm':str,'s1':str,
+                's2':str,'s3':str,'s4':str,'s5':str,'s6':str,
+                's7':str,'s8':str,'s9':str,'s10':str,'s11':str,'s12':str}
+
+        if time in ['current']:
+            columns=range(0,18,1)
+        elif time in ['1hr']:
+            columns=[0,1,2,3,4,5,6,7,18,19,20,21,22,23,24,25,26,27]
+        elif time in ['2hr']:
+            columns=[0,1,2,3,4,5,6,7,28,29,30,31,32,33,34,35,36,37]
+
         df = pd.read_csv(fobj,delimiter='\s+',header=None,
           names=header,index_col=False,usecols=columns,error_bad_lines=False,
-          dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str,'s5':str,'s6':str,'s7':str,'s8':str,'s9':str,'s10':str,'s11':str,'s12':str},
+          dtype=dtype,
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
 
         df['longitude']=df['longitude'] * -1 #convert to +W
@@ -322,7 +337,7 @@ parser.add_argument('sourcefile',
 parser.add_argument('version', 
     metavar='version', 
     type=str, 
-    help='buoy,v1-metocean(pre-2017),v2-vendor(2017)')
+    help='buoy,buoy_3hr,v1-metocean(pre-2017),v2-vendor(2017)')
 parser.add_argument('-csv','--csv', 
     type=str, 
     help='output as csv - full path')
@@ -388,7 +403,73 @@ elif args.version in ['buoy','met','sfc_package']:
     df.set_index(df['sampletime'],inplace=True)
     
     df.drop(['sampletime','seconds','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], axis=1, inplace=True)
+
+elif args.version in ['buoy_3hr']:
     
+    atseadata = ARGOS_SERVICE_Buoy(missing=None)
+
+    df0 = atseadata.parse(atseadata.get_data(args.sourcefile),'current')
+    
+    #current sample
+    df0['seconds']= df0.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
+    df0['sampletime']= [index.floor('D')+ datetime.timedelta(seconds=row['seconds']) for index, row in df0.iterrows()]
+    df0['BP']= df0.apply(lambda row: atseadata.BP(row['s3']), axis=1)
+    df0['AT']= df0.apply(lambda row: atseadata.AT(row['s4'],row['s5']), axis=1)
+    df0['BV']= df0.apply(lambda row: atseadata.BV(row['s6']), axis=1)
+    df0['RH']= df0.apply(lambda row: atseadata.RH(row['s7']), axis=1)
+    df0['WS']= df0.apply(lambda row: atseadata.WS(row['s8'],row['s9']), axis=1)
+    df0['WD']= df0.apply(lambda row: atseadata.WD(row['s10']), axis=1)
+    df0['SR']= df0.apply(lambda row: atseadata.SR(row['s11']), axis=1)
+    df0['AZ']= df0.apply(lambda row: atseadata.AZ(row['s12']), axis=1)
+
+    #Uses sample time instead of transmit/location time
+    df0.drop((df0[df0['seconds'] > 86400]).index, inplace=True)
+    df0.set_index(df0['sampletime'],inplace=True)
+
+    #sample -1hr
+    df1 = atseadata.parse(atseadata.get_data(args.sourcefile),'1hr')
+    
+    df1['seconds']= df1.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
+    df1['sampletime']= [index.floor('D')+ datetime.timedelta(seconds=(row['seconds']-3600)) for index, row in df1.iterrows()]
+    df1['BP']= df1.apply(lambda row: atseadata.BP(row['s3']), axis=1)
+    df1['AT']= df1.apply(lambda row: atseadata.AT(row['s4'],row['s5']), axis=1)
+    df1['BV']= df1.apply(lambda row: atseadata.BV(row['s6']), axis=1)
+    df1['RH']= df1.apply(lambda row: atseadata.RH(row['s7']), axis=1)
+    df1['WS']= df1.apply(lambda row: atseadata.WS(row['s8'],row['s9']), axis=1)
+    df1['WD']= df1.apply(lambda row: atseadata.WD(row['s10']), axis=1)
+    df1['SR']= df1.apply(lambda row: atseadata.SR(row['s11']), axis=1)
+    df1['AZ']= df1.apply(lambda row: atseadata.AZ(row['s12']), axis=1)
+
+    #Uses sample time instead of transmit/location time
+    df1.drop((df1[df1['seconds'] > 86400]).index, inplace=True)
+    df1.set_index(df1['sampletime'],inplace=True)
+
+    #sample -2hr
+    df2 = atseadata.parse(atseadata.get_data(args.sourcefile),'2hr')
+    
+    df2['seconds']= df2.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
+    df2['sampletime']= [index.floor('D')+ datetime.timedelta(seconds=(row['seconds']-7200)) for index, row in df2.iterrows()]
+    df2['BP']= df2.apply(lambda row: atseadata.BP(row['s3']), axis=1)
+    df2['AT']= df2.apply(lambda row: atseadata.AT(row['s4'],row['s5']), axis=1)
+    df2['BV']= df2.apply(lambda row: atseadata.BV(row['s6']), axis=1)
+    df2['RH']= df2.apply(lambda row: atseadata.RH(row['s7']), axis=1)
+    df2['WS']= df2.apply(lambda row: atseadata.WS(row['s8'],row['s9']), axis=1)
+    df2['WD']= df2.apply(lambda row: atseadata.WD(row['s10']), axis=1)
+    df2['SR']= df2.apply(lambda row: atseadata.SR(row['s11']), axis=1)
+    df2['AZ']= df2.apply(lambda row: atseadata.AZ(row['s12']), axis=1)
+
+    #Uses sample time instead of transmit/location time
+    df2.drop((df2[df2['seconds'] > 86400]).index, inplace=True)
+    df2.set_index(df2['sampletime'],inplace=True)
+
+    
+    df0.drop(['sampletime','seconds','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], axis=1, inplace=True)
+    df1.drop(['sampletime','seconds','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], axis=1, inplace=True)
+    df2.drop(['sampletime','seconds','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], axis=1, inplace=True)
+    
+    #merge the three dataframes
+    df = pd.concat([df0,df1,df2])
+
 else:
     print("No recognized argos-pmel version")
     sys.exit()
