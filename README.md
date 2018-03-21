@@ -1,3 +1,23 @@
+## Argo Service data acquistion and processing for EcoFOCI
+
+To retrieve and archive data from the Argo service.  Used primarily for drogued drifters and peggy near-realtime wpak data
+
+### Example procedures
+
+**To obtain all data from program 572 (EcoFOCI) since a specified date**
+
+`python getARGO_SOAP.py getCsv -startDate 2018-03-03T00:00:00`
+
+will output csv from the 3rd of march for a default length of one day
+
+`python getARGO_SOAP.py getCsv -startDate 2018-03-03T00:00:00 -recordlength 43200 `
+
+will output csv data from the 3rd of march for half a day
+
+`python getARGO_SOAP.py getCsv`
+
+will output csv data for the entire 24 hours of the last full day (so if you run it at any point on the 5th of March, it will retrieve all of the 4th of March)
+
 ################
 
 Legal Disclaimer
