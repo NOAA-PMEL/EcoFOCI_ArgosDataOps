@@ -41,15 +41,31 @@ parser.add_argument('-idnumber', '--idnumber',
     type=str,
     default='572',
     help='programNumber: or platformId number desired')
+parser.add_argument('-startDate','--startDate',
+    type=str,
+    default='today',
+    help='startDate for retrieval in yyyy-mm-ddThh:mm:ss')
+parser.add_argument('-recordlength','--recordlength',
+    type=int,
+    default=86400,
+    help='length of records to retrieve in seconds (default is 86400)')
 
 args = parser.parse_args()
 
 client = zeep.Client('http://ws-argos.clsamerica.com/argosDws/services/DixService?wsdl')
 
+if args.startDate:
+  if args.startDate in ['today']:
+    startDate = datetime.date.today()-datetime.timedelta(seconds=24*60*60)
+    endDate   = datetime.date.today()
+  else:
+    startDate = datetime.datetime.strptime(args.startDate,'%Y-%m-%dT%H:%M:%S')
+    endDate   = startDate + datetime.timedelta(seconds=args.recordlength) 
+
 argodic = {'username':'bparker',
            'password':'invest',
            args.idMode:args.idnumber,
-           'period':{'startDate':datetime.date.today()-datetime.timedelta(seconds=24*60*60),'endDate':datetime.date.today()},
+           'period':{'startDate':startDate,'endDate':endDate},
            'mostRecentPassages':True,
            'showHeader':True,
            'displayLocation':True,
@@ -83,7 +99,7 @@ if args.service in ['getKml']:
     result = client.service.getKml(**subdict)
     filetype = 'kml'
 
-datestr = datetime.date.today().strftime('%Y%m%d')
+datestr = startDate.strftime('%Y%m%d%H%M%S')+'_'+endDate.strftime('%Y%m%d%H%M%S')
 if args.idMode in ['programNumber']:
     with open("data/" + ".".join(['ARGO_'+datestr,filetype]), 'w') as f:
       f.write(result)
