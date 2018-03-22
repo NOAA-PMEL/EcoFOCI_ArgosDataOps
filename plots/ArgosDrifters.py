@@ -78,7 +78,7 @@ class ArgosPlot(object):
 
         return({'x1':x1,'x2':x2,'y1':y1,'y2':y2})
 
-    def make_map(self,bounds=None,param='doy',etopofile='data/etopo5.nc'):
+    def make_map(self,bounds=None,param='doy',etopofile='data/etopo5.nc',lat='latitude',lon='longitude'):
 
         bounds = self.set_region_bounds(etopofile=etopofile)
         self.set_region(region='bering')
@@ -93,6 +93,7 @@ class ArgosPlot(object):
                     lat_ts=45)
         
         self.elons, self.elats = np.meshgrid(self.elons, self.elats)
+        print self.df.columns
         x, y = m(-1. * self.df[lon].values,self.df[lat].values)
         ex, ey = m(self.elons, self.elats)
 
