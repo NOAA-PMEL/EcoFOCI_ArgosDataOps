@@ -492,7 +492,7 @@ if args.config:
   config_settings = ConfigParserLocal.get_config(args.config,'yaml')
   print("Constraining data to {start}-{end}".format(start=config_settings['Mooring']['StartDate'],
                                                     end=config_settings['Mooring']['EndDate']))
-  df = df.ix[config_settings['Mooring']['StartDate']:config_settings['Mooring']['EndDate']]
+  df = df.loc[config_settings['Mooring']['StartDate']:config_settings['Mooring']['EndDate']]
 
 if args.interpolate:
   #hourly binned with linear interpolation to fill gaps
