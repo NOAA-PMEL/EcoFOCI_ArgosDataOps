@@ -66,7 +66,7 @@ class ArgosPlot(object):
         self.etopo5(file=etopofile)
 
         #build regional subset of data
-        self.topoin = self.topoin[find_nearest(self.elats,self.df[latname].min()-5):find_nearest(self.elats,self.df[latname].max()+5),find_nearest(self.elons,-1*(self.df.lon.max()+5)):find_nearest(self.elons,-1*(self.df.lon.min()-5))]
+        self.topoin = self.topoin[find_nearest(self.elats,self.df[latname].min()-5):find_nearest(self.elats,self.df[latname].max()+5),find_nearest(self.elons,-1*(self.df['lonname'].max()+5)):find_nearest(self.elons,-1*(self.df['lonname'].min()-5))]
         self.elons = self.elons[find_nearest(self.elons,-1*(self.df[lonname].max()+5)):find_nearest(self.elons,-1*(self.df[lonname].min()-5))]
         self.elats = self.elats[find_nearest(self.elats,self.df[latname].min()-5):find_nearest(self.elats,self.df[latname].max()+5)]
 
