@@ -72,7 +72,7 @@ class ArgosPlot(object):
 
         #determine regional bounding
         y1 = np.floor(self.df[latname].min()-1)
-        y2 = np.ceil(self.df[latitude].max()+1)
+        y2 = np.ceil(self.df[latname].max()+1)
         x1 = np.ceil(-1*(self.df[lonname].max()+2))
         x2 = np.floor(-1*(self.df[lonname].min()-2))
 
@@ -93,7 +93,7 @@ class ArgosPlot(object):
                     lat_ts=45)
         
         self.elons, self.elats = np.meshgrid(self.elons, self.elats)
-        x, y = m(-1. * self.df.lon.values,self.df[latitude].values)
+        x, y = m(-1. * self.df[lonname].values,self.df[latname].values)
         ex, ey = m(self.elons, self.elats)
 
         m.drawcountries(linewidth=0.5)
