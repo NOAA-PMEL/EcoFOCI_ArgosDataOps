@@ -36,7 +36,7 @@ parser.add_argument('-drifteryearfiles', '--drifteryearfiles',
 
 args = parser.parse_args()
 
-df = pd.read_csv(args.infile,sep=';',index_col=False,dtype=object)
+df = pd.read_csv(args.infile,sep=';',index_col=False,dtype=object,error_bad_lines=False)
 
 
 if args.getactiveids:
@@ -47,7 +47,10 @@ if args.buoyyearfiles:
     gb = df.groupby('platformId')
 
     keep_columns=['platformId','latitude','longitude','bestDate','value'] + ['value.'+str(i) for i in range(1,32)] + ['locationClass']
-    bd = gb.get_group('28882')
+    try:
+      bd = gb.get_group('28882')
+    except:
+      print("no 28882 data in this file")
 
     bd_thinned = bd[keep_columns].copy()
     bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).year), axis=1)
