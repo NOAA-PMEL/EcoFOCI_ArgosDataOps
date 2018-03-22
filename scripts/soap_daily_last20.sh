@@ -6,9 +6,10 @@
 
 for i in {0..20}
 do
-  #startDate="$(date +"%Y-%m-%dT00:00:00" -d "$i day ago")"
+  #mac format
+  #startDate="$(-v-${i}d  +"%Y-%m-%dT00:00:00")"
   #*nix format
-  startDate="$(-v-${i}d  +"%Y-%m-%dT00:00:00")"
+  startDate="$(date +"%Y-%m-%dT00:00:00" -d "$i day ago")"
   echo "Grabbing $startDate"
   python getARGO_SOAP.py getCsv -startDate $startDate
 done
