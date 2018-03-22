@@ -7,6 +7,9 @@ header='"programNumber";"platformId";"platformType";"platformModel";"platformNam
 
 for i in `ls -1`
 do
-  sed -i '' -e "1s/.*/${header}/" $i
+  #mac
+  #sed -i '' -e "1s/.*/${header}/" $i
+  #*nix
+  sed -i "1s/.*/${header}/" $i
 done
 
