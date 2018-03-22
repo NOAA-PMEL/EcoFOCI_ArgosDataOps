@@ -11,8 +11,8 @@ Discussion:
 For drifter data (and many other datasets)... there are multiple ways to put on a fixed time grid:
 
 downsample (either through decimation or averaging)
-	decimation: ignores all sub timestep features.  Good for slowly varying data.
-	averaging: smooths sub timestep features.  Valid at midpoint of data period
+  decimation: ignores all sub timestep features.  Good for slowly varying data.
+  averaging: smooths sub timestep features.  Valid at midpoint of data period
 
 upsample (interpolate then average/decimate or average/decimate then interpolate)
 
@@ -32,6 +32,12 @@ Position     Length     Field
 15             10        Sea surface temperature     N * 0.04 – 2.00
 25             8         Checksum                    Modulus 256 of sum of previous 3 bytes
 32 bytes total     
+
+Uses cleaned id.year datafiles with format as follows for wpak
+028882 47.683 -122.265 2018 066 0220 02 0A BE 02 4E 0E 31 00 10 EA 02 C0 BE 02 5E 0E 2E 00 0C ED 05 C0 BE 02 68 0E 2A 00 13 E5 38 C0   1
+and for a drifter
+136866 61.424 -171.133 2018 001 0007 09 C4 40 0D A4 6D 49   3
+
 
  History:
  --------
@@ -166,7 +172,15 @@ class ARGOS_SERVICE_Buoy(object):
     @staticmethod
     def parse(fobj,time='current'):
         r"""
-          Date,AT,RH,WS,WD,BP,QS,AZ,BV
+        Parse the WPAK data which has three sample points reported at each transmission.
+
+        time='current' will only return the most recent data point for each transmission
+        time='1hr' will only return the sample point from one hour prior
+        time='2hr' will only return the sample point from two hours prior
+        
+        concatenate the three independant calls and you will have the most populated data set.
+        
+        Date,AT,RH,WS,WD,BP,QS,AZ,BV
         """
         argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
 
