@@ -56,7 +56,7 @@ class ArgosPlot(object):
         
         self.topoin,self.elons = shiftgrid(0.,self.topoin,self.elons,start=False) # -360 -> 0
  
-    def set_region_bounds(self,etopofile='data/etopo5.nc'): 
+    def set_region_bounds(self,etopofile='data/etopo5.nc',latname='latitude',lonname='longitude'): 
         """
         df=dataframe
 
@@ -66,15 +66,15 @@ class ArgosPlot(object):
         self.etopo5(file=etopofile)
 
         #build regional subset of data
-        self.topoin = self.topoin[find_nearest(self.elats,self.df.lat.min()-5):find_nearest(self.elats,self.df.lat.max()+5),find_nearest(self.elons,-1*(self.df.lon.max()+5)):find_nearest(self.elons,-1*(self.df.lon.min()-5))]
-        self.elons = self.elons[find_nearest(self.elons,-1*(self.df.lon.max()+5)):find_nearest(self.elons,-1*(self.df.lon.min()-5))]
-        self.elats = self.elats[find_nearest(self.elats,self.df.lat.min()-5):find_nearest(self.elats,self.df.lat.max()+5)]
+        self.topoin = self.topoin[find_nearest(self.elats,self.df[latname].min()-5):find_nearest(self.elats,self.df[latname].max()+5),find_nearest(self.elons,-1*(self.df.lon.max()+5)):find_nearest(self.elons,-1*(self.df.lon.min()-5))]
+        self.elons = self.elons[find_nearest(self.elons,-1*(self.df[lonname].max()+5)):find_nearest(self.elons,-1*(self.df[lonname].min()-5))]
+        self.elats = self.elats[find_nearest(self.elats,self.df[latname].min()-5):find_nearest(self.elats,self.df[latname].max()+5)]
 
         #determine regional bounding
-        y1 = np.floor(self.df.lat.min()-1)
-        y2 = np.ceil(self.df.lat.max()+1)
-        x1 = np.ceil(-1*(self.df.lon.max()+2))
-        x2 = np.floor(-1*(self.df.lon.min()-2))
+        y1 = np.floor(self.df[latname].min()-1)
+        y2 = np.ceil(self.df[latitude].max()+1)
+        x1 = np.ceil(-1*(self.df[lonname].max()+2))
+        x2 = np.floor(-1*(self.df[lonname].min()-2))
 
         return({'x1':x1,'x2':x2,'y1':y1,'y2':y2})
 
@@ -93,7 +93,7 @@ class ArgosPlot(object):
                     lat_ts=45)
         
         self.elons, self.elats = np.meshgrid(self.elons, self.elats)
-        x, y = m(-1. * self.df.lon.values,self.df.lat.values)
+        x, y = m(-1. * self.df.lon.values,self.df[latitude].values)
         ex, ey = m(self.elons, self.elats)
 
         m.drawcountries(linewidth=0.5)
