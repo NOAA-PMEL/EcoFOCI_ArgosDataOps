@@ -383,6 +383,9 @@ if args.version in ['v1','V1','version1','v1-metocean']:
     df['checksum']= df.apply(lambda row: atseadata.checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
     df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'], axis=1, inplace=True)
 
+    df.drop(df.index[~df['checksum']],inplace=True)
+    df.drop_duplicates(subset='year_doy_hhmm',keep='last',inplace=True)
+
 elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
     
     atseadata = ARGOS_SERVICE_Drifter()
@@ -394,6 +397,9 @@ elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
     df['sst']= df.apply(lambda row: atseadata.sst_argos(row['s2'], row['s3']), axis=1)
     df['checksum']= df.apply(lambda row: atseadata.checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
     df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'], axis=1, inplace=True)
+
+    df.drop(df.index[~df['checksum']],inplace=True)
+    df.drop_duplicates(subset=['year_doy_hhmm','latitude','longitude'],keep='last',inplace=True)
 
 elif args.version in ['buoy','met','sfc_package']:
     
@@ -414,7 +420,7 @@ elif args.version in ['buoy','met','sfc_package']:
 
     #Uses sample time instead of transmit/location time
     df.drop((df[df['seconds'] > 86400]).index, inplace=True)
-    df.set_index(df['sampletime'],inplace=True)
+    df.drop_duplicates(subset=['year_doy_hhmm','latitude','longitude'],keep='last',inplace=True)
     
     df.drop(['sampletime','seconds','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], axis=1, inplace=True)
 

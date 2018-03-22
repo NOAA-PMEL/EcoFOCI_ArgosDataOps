@@ -93,7 +93,7 @@ class ArgosPlot(object):
                     lat_ts=45)
         
         self.elons, self.elats = np.meshgrid(self.elons, self.elats)
-        print self.df.columns
+
         x, y = m(-1. * self.df[lon].values,self.df[lat].values)
         ex, ey = m(self.elons, self.elats)
 
