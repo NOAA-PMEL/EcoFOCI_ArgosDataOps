@@ -67,11 +67,12 @@ if args.drifteryearfiles:
     keep_columns=['platformId','latitude','longitude','locationDate','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
 
     for k in gb.groups.keys():
-      bd = gb.get_group(k)
-      bd_thinned = bd[keep_columns].copy()
-      bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).year), axis=1)
-      bd_thinned['doy'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).dayofyear), axis=1)
-      bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).hour).zfill(2)+str(pd.to_datetime(row['locationDate']).minute).zfill(2), axis=1)
+      if k not in ['28882']:
+        bd = gb.get_group(k)
+        bd_thinned = bd[keep_columns].copy()
+        bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).year), axis=1)
+        bd_thinned['doy'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).dayofyear), axis=1)
+        bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).hour).zfill(2)+str(pd.to_datetime(row['locationDate']).minute).zfill(2), axis=1)
 
-      out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
-      bd_thinned[out_columns].to_csv(args.outfile + k + '.y2018',' ',header=False,index=False,na_rep=np.nan,mode='a')
+        out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
+        bd_thinned[out_columns].dropna().to_csv(args.outfile + k + '.y2018',' ',header=False,index=False,na_rep=np.nan,mode='a')
