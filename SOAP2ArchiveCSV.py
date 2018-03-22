@@ -49,16 +49,17 @@ if args.buoyyearfiles:
     keep_columns=['platformId','latitude','longitude','bestDate','value'] + ['value.'+str(i) for i in range(1,32)] + ['locationClass']
     try:
       bd = gb.get_group('28882')
+
+      bd_thinned = bd[keep_columns].copy()
+      bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).year), axis=1)
+      bd_thinned['doy'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).dayofyear), axis=1)
+      bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).hour).zfill(2)+str(pd.to_datetime(row['bestDate']).minute).zfill(2), axis=1)
+
+      out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,32)] + ['locationClass']
+      bd_thinned[out_columns].to_csv(args.outfile,' ',header=False,index=False,na_rep=np.nan,mode='a')
     except:
       print("no 28882 data in this file")
 
-    bd_thinned = bd[keep_columns].copy()
-    bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).year), axis=1)
-    bd_thinned['doy'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).dayofyear), axis=1)
-    bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).hour).zfill(2)+str(pd.to_datetime(row['bestDate']).minute).zfill(2), axis=1)
-
-    out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,32)] + ['locationClass']
-    bd_thinned[out_columns].to_csv(args.outfile,' ',header=False,index=False,na_rep=np.nan,mode='a')
 
 if args.drifteryearfiles:
     gb = df.groupby('platformId')
