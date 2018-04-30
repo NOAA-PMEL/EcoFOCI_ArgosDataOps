@@ -43,6 +43,6 @@ do
    	for fid in ${path}${files}
    	do
 	    echo "processing file: ${id} - ${fid}"
-		python SOAP2ArchiveCSV.py ${fid} --buoyyearid ${path}data/${files}.${id}.y${year} 
+		python SOAP2ArchiveCSV.py ${fid} --buoyyearfiles ${path}data/${files}.${id}.y${year} 
 	done
 done
