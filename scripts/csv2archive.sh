@@ -3,6 +3,7 @@
 # Purpose:
 #       Script to run SOAP2ArchiveCSV.py for each file in a directory
 #       and output as independant file
+# merge files together later with a cat... use pandas to remove duplicates
 
 year=2018
 path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/"
@@ -13,22 +14,25 @@ argosID="148276 136863 122531 136868 136866 136867"
 
 : '
 for files in $argosID
+for id in $argosID
 do
-    names=(${files//\// })
-    outfile=${names[${#names[@]} - 1]}
-    echo "processing file: $files"
-	python SOAP2ArchiveCSV.py ${path}${files}.y${year} --drifteryearfiles data/${files}.y${year}
+   	for fid in ${path}${files}
+   	do
+	    echo "processing file: ${id} - ${fid}"
+		python SOAP2ArchiveCSV.py ${fid} --drifteryearfiles ${path}data/${files}.${id}.y${year} 
+	done
 done
-
 #version2 buoys
 argosID="145474"
 
 for files in $argosID
+for id in $argosID
 do
-    names=(${files//\// })
-    outfile=${names[${#names[@]} - 1]}
-    echo "processing file: $files"
-	python SOAP2ArchiveCSV.py ${path}${files}.y${year} --drifteryearfiles data/${files}.y${year}
+   	for fid in ${path}${files}
+   	do
+	    echo "processing file: ${id} - ${fid}"
+		python SOAP2ArchiveCSV.py ${fid} --drifteryearfiles ${path}data/${files}.${id}.y${year} 
+	done
 done
 '
 #Mooring/Peggy Buoy
