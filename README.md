@@ -18,6 +18,18 @@ will output csv data from the 3rd of march for half a day
 
 will output csv data for the entire 24 hours of the last full day (so if you run it at any point on the 5th of March, it will retrieve all of the 4th of March)
 
+### Convert Soap Retrievals to Archive Format
+
+From csv files obtaind via getARGO_SOAP.py there are two pathways:
+- clean and archive.  Using SOAP2ArchiveCSV.py you can generate clean csv files for archive and later usage.  No hex conversion has happened at this point, just removal of unnecessary head/column id's and partitioning of data into files based on argo transmitter id.
+- process and convert.  Using ARGOS_service_data_converter.py will allow the various types of datastreams to have their hex information converted into science values.
+
+### Additional Routines
+- ARGOcsv2gpx.py takes the SOAP2ArchiveCSV.py csv files and creates gpx files for GIS software
+- ARGOS_service_data_converter.py -nc will make netcdf files of the SOAP2ArchiveCSV.py yearly csv files (or yearly files from Benny's old routine)
+
+***There is no routine that converts raw SOAP data straight to usable output***
+
 ################
 
 Legal Disclaimer
