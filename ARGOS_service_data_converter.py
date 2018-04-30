@@ -420,7 +420,7 @@ elif args.version in ['buoy','met','sfc_package']:
 
     #Uses sample time instead of transmit/location time
     df.drop((df[df['seconds'] > 86400]).index, inplace=True)
-    df1.set_index(df1['sampletime'],inplace=True)
+    df.set_index(df1['sampletime'],inplace=True)
     #df.drop_duplicates(subset=['year_doy_hhmm','latitude','longitude'],keep='last',inplace=True)
     df.dropna(subset=['latitude','longitude'], how='any', inplace = True)
     df.drop(['sampletime','seconds','s1','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','s12'], axis=1, inplace=True)
