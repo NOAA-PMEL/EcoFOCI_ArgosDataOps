@@ -2,6 +2,8 @@
 
 To retrieve and archive data from the Argo service.  Used primarily for drogued drifters and peggy near-realtime wpak data
 
+***Written/Tested for:*** python 3.6, 2.7
+
 ### Example procedures
 
 **To obtain all data from program 572 (EcoFOCI) since a specified date**

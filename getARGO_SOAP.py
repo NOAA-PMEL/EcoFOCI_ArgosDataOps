@@ -1,8 +1,4 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
 """
-Created on Wed Feb 21 06:47:44 2018
-
 Purpose:
   Using SOAP protocol to connect to argo service for drifter and weatherpak data access
 
