@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
  ARGOcsv2gpx.py
 
