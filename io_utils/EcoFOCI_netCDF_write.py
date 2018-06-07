@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
  EcoFOCI_netCDF_write.py
  

@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env python2
 
 """
 DrifterVectorPlot.py
