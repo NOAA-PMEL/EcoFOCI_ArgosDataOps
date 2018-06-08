@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 """
+Created on Wed Feb 21 06:47:44 2018
+
 Purpose:
   Format results from soap call to clean "traditional" csv archival format.
   Currently only processes csv returned files
