@@ -14,21 +14,20 @@ import numpy as np
 import datetime
 
 # parse incoming command line options
-parser = argparse.ArgumentParser(description='Format ARGOS Soap retrieved files')
+parser = argparse.ArgumentParser(description='Format ARGOS Soap retrieved files to archive csv files')
 parser.add_argument('infile', 
     metavar='infile', 
     type=str,
     help='full path to infile')
-parser.add_argument('outfile', 
-    metavar='outfile', 
+parser.add_argument('-year','--archive_year',
     type=str,
-    help='full path to outfile: use pattern - platformId.y{{year}} ')
+    help='year of data being input, will default to current year if omitted')
 parser.add_argument('-getactiveids', '--getactiveids',
     action="store_true", 
     help='get active listing of platformIds')
 parser.add_argument('-buoyyearfiles', '--buoyyearfiles',
     action="store_true", 
-    help='create buoy year files - 28882')
+    help='create buoy year files - only for 028882')
 parser.add_argument('-drifteryearfiles', '--drifteryearfiles',
     action="store_true", 
     help='create all drifter year files from activeid listing')
@@ -37,6 +36,10 @@ args = parser.parse_args()
 
 df = pd.read_csv(args.infile,sep=';',index_col=False,dtype=object,error_bad_lines=False)
 
+if not args.archive_year:
+    year = str(datetime.datetime.now().year)
+else:
+    year = args.archive_year
 
 if args.getactiveids:
     gb = df.groupby('platformId')
@@ -55,7 +58,7 @@ if args.buoyyearfiles:
       bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).hour).zfill(2)+str(pd.to_datetime(row['bestDate']).minute).zfill(2), axis=1)
 
       out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,32)] + ['locationClass']
-      bd_thinned[out_columns].to_csv(args.outfile,' ',header=False,index=False,na_rep=np.nan,mode='a')
+      bd_thinned[out_columns].to_csv('028882.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
     except:
       print("no 28882 data in this file")
 
@@ -75,4 +78,4 @@ if args.drifteryearfiles:
         bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).hour).zfill(2)+str(pd.to_datetime(row['locationDate']).minute).zfill(2), axis=1)
 
         out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
-        bd_thinned[out_columns].dropna().to_csv(args.outfile + k + '.y2018',' ',header=False,index=False,na_rep=np.nan,mode='a')
+        bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
