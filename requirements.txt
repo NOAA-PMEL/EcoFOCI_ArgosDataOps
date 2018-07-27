@@ -1,3 +1,0 @@
-zeep
-pandas
-netCDF4
