@@ -3,9 +3,12 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+#should reproduce the last working environment (from linux system)
+#remove version numbers if conflicts
+#be cautious about running conda update after. it may break api's 
   - appdirs=1.4.3
   - asn1crypto=0.24.0
-  - blas=1.1=openblas
+  - blas=1.1
   - ca-certificates=2018.4.16
   - cached-property=1.4.0
   - cairo=1.14.6
@@ -28,7 +31,7 @@ dependencies:
   - idna=2.6
   - ipaddress=1.0.22
   - isodate=0.6.0
-  - jpeg=9b=2
+  - jpeg=9b
   - krb5=1.14.6
   - libffi=3.2.1
   - libiconv=1.15
