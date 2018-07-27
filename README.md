@@ -2,7 +2,10 @@
 
 To retrieve and archive data from the Argo service.  Used primarily for drogued drifters and peggy near-realtime wpak data
 
-***Written/Tested for:*** python 3.6, 2.7
+***Written/Tested for:*** 
+
+- python >=3.6 **tested**
+- python 2.7 **tested** but may break in the future
 
 ### Example procedures
 
@@ -28,7 +31,7 @@ From csv files obtaind via getARGO_SOAP.py there are two pathways:
 
 ### Additional Routines
 - ARGOcsv2gpx.py takes the SOAP2ArchiveCSV.py csv files and creates gpx files for GIS software
-- ARGOS_service_data_converter.py -nc will make netcdf files of the SOAP2ArchiveCSV.py yearly csv files (or yearly files from Benny's old routine)
+- ARGOS_service_data_converter.py -nc will make netcdf files of the SOAP2ArchiveCSV.py - builds yearly csv files (or yearly files like Kachel and Benny's old routine).  This routine appends to existing text by default.
 
 ***There is no routine that converts raw SOAP data straight to usable output***
 

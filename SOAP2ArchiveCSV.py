@@ -1,10 +1,29 @@
-# -*- coding: utf-8 -*-
 """
-Created on Wed Feb 21 06:47:44 2018
+ Background:
+ ===========
+ SOAP2ArchiveCSV.py
+ 
+ 
+ Purpose:
+ ========
+  Format results from soap call to clean "traditional" csv archival format.  This format is
+  known as the .y or 'year files' and was previously created by DGK and Benny's routines
 
-Purpose:
-  Format results from soap call to clean "traditional" csv archival format.
-  Currently only processes csv returned files
+ File Format:
+ ============
+  Currently only processes csv returned files from SOAP (not xml).  
+
+ (Very Long) Example Usage:
+ ==========================
+
+
+ History:
+ ========
+
+ Compatibility:
+ ==============
+ python >=3.6 **tested**
+ python 2.7 **tested** but may break in the future
 
 """
 
