@@ -5,13 +5,11 @@
 #       and output as concatenated file - only makes year files but not translated 
 
 year=2018
-path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/data/raw_data/"
+path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/data/raw_data/*.csv"
 
 for files in $path
 do
-    names=(${files//\// })
-    outfile=${names[${#names[@]} - 1]}
     echo "processing file: $files"
-	python SOAP2ArchiveCSV.py ${path}${files} -drifteryearfiles
+	python SOAP2ArchiveCSV.py ${files} -drifteryearfiles
 done
 
