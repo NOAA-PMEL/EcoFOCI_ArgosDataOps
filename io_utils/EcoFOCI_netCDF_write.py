@@ -19,8 +19,8 @@ from netCDF4 import Dataset
 
 __author__   = 'Shaun Bell'
 __email__    = 'shaun.bell@noaa.gov'
-__created__  = datetime.datetime(2014, 01, 13)
-__modified__ = datetime.datetime(2014, 12, 02)
+__created__  = datetime.datetime(2014, 1, 13)
+__modified__ = datetime.datetime(2014, 12, 2)
 __version__  = "0.3.0"
 __status__   = "Development"
 
