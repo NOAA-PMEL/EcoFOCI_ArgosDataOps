@@ -5,8 +5,8 @@
 #       and output as independant netcdf file
 
 year=2018
-path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/data/year_archive/"
-buoyfile=${path}scripts/v2_buoy_ids.csv
+path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/data/year_archive/*.csv"
+buoyfile="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/scripts/v2_buoy_ids.csv"
 
 for files in $path
 do
