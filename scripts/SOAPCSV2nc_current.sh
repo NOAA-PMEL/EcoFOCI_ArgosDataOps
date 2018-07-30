@@ -6,13 +6,14 @@
 
 year=2018
 path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/data/year_archive/"
+buoyfile=${path}scripts/v2_buoy_ids.csv
 
 for files in $path
 do
     names=(${files//\// })
     outfile=${names[${#names[@]} - 1]}
 
-	if [[ "$outfile" =~ $(echo ^\($(paste -sd'|' ${path}/scripts/v2_buoy_ids.csv)\)$) ]]; then
+	if [[ "$outfile" =~ $(echo ^\($(paste -sd'|' ${buoyfile})\)$) ]]; then
 		#version2 buoys
 	    echo "processing file: $files"
 		python ARGOS_service_data_converter.py ${files} v2 -nc data/${files}.nc
