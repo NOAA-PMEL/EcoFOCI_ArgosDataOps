@@ -62,3 +62,6 @@ dependencies:
   - libopenblas=0.2.20
   - libstdcxx-ng=7.2.0
   - numpy-base=1.14.3
+  - yaml=0.1.7
+  - pyyaml=3.12
+  - cmocean

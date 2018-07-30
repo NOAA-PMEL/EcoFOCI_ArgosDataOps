@@ -4,6 +4,7 @@
 #       Script to run ARGOS_service_data_converter.py for each year file in a directory
 #       and output as independant netcdf file
 #
+# Be sure to use an appropriate environment (ARGODrifters-py36 or ARGODrifters)
 
 year=2018
 path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/data/year_archive/*.y${year}"
