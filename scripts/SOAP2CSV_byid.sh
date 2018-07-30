@@ -5,7 +5,7 @@
 #       and output as concatenated file - only makes year files but not translated 
 
 year=2018
-path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/data/raw_data/"
+path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/data/raw_data/*.csv"
 
 for files in $argosID
 do
