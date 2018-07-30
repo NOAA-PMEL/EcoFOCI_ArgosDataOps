@@ -41,6 +41,7 @@ and for a drifter
 
  History:
  --------
+ 2018-07-30: Merge the get and parse functions... buffered or streamin not translating well. (programmer limitation)
  2018-03-20: Buoy wpak transmitted data has three consecutive hours included.  Use 
     this data to fill gaps when no location lock was completed.  Option is added as
     "buoy_3hr" to the version flag
@@ -76,21 +77,9 @@ class ARGOS_SERVICE_Drifter(object):
       self.missing = missing
 
     @staticmethod
-    def get_data(filename=None):
+    def get_data(fobj=None):
         r"""
         Basic Method to open files.  Specific actions can be passes as kwargs for instruments
-        """
-
-        fobj = open(filename)
-        data = fobj.read()
-
-
-        buf = data
-        return StringIO(buf.strip())
-
-    @staticmethod
-    def parse(fobj):
-        r"""
 
         """
         argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
@@ -158,21 +147,10 @@ class ARGOS_SERVICE_Buoy(object):
       self.missing = missing
 
     @staticmethod
-    def get_data(filename=None):
+    def get_data(fobj=None):
         r"""
         Basic Method to open files.  Specific actions can be passes as kwargs for instruments
-        """
 
-        fobj = open(filename)
-        data = fobj.read()
-
-
-        buf = data
-        return BytesIO(buf.strip())
-
-    @staticmethod
-    def parse(fobj,time='current'):
-        r"""
         Parse the WPAK data which has three sample points reported at each transmission.
 
         time='current' will only return the most recent data point for each transmission
@@ -376,7 +354,7 @@ if args.version in ['v1','V1','version1','v1-metocean']:
 
     atseadata = ARGOS_SERVICE_Drifter()
 
-    df = atseadata.parse(atseadata.get_data(args.sourcefile))
+    df = atseadata.get_data(args.sourcefile)
     
     df['strain']= df.apply(lambda row: atseadata.strain_argos(row['s1'],manufacter='MetOcean'), axis=1)
     df['voltage']= df.apply(lambda row: atseadata.voltage_argos(row['s2']), axis=1)
@@ -391,7 +369,7 @@ elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
     
     atseadata = ARGOS_SERVICE_Drifter()
 
-    df = atseadata.parse(atseadata.get_data(args.sourcefile))
+    df = atseadata.get_data(args.sourcefile)
     
     df['strain']= df.apply(lambda row: atseadata.strain_argos(row['s1']), axis=1)
     df['voltage']= df.apply(lambda row: atseadata.voltage_argos(row['s2']), axis=1)
@@ -406,7 +384,7 @@ elif args.version in ['buoy','met','sfc_package']:
     
     atseadata = ARGOS_SERVICE_Buoy(missing=None)
 
-    df = atseadata.parse(atseadata.get_data(args.sourcefile))
+    df = atseadata.get_data(args.sourcefile)
     
     df['seconds']= df.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
     df['sampletime']= [index.floor('D')+ datetime.timedelta(seconds=row['seconds']) for index, row in df.iterrows()]
@@ -430,7 +408,7 @@ elif args.version in ['buoy_3hr']:
     
     atseadata = ARGOS_SERVICE_Buoy(missing=None)
 
-    df0 = atseadata.parse(atseadata.get_data(args.sourcefile),'current')
+    df0 = atseadata.get_data(args.sourcefile,'current')
     
     #current sample
     df0['seconds']= df0.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
@@ -450,7 +428,7 @@ elif args.version in ['buoy_3hr']:
     df0.dropna(subset=['latitude','longitude'], how='any', inplace = True)
 
     #sample -1hr
-    df1 = atseadata.parse(atseadata.get_data(args.sourcefile),'1hr')
+    df1 = atseadata.get_data(args.sourcefile,'1hr')
     
     df1['seconds']= df1.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
     df1['sampletime']= [index.floor('D')+ datetime.timedelta(seconds=(row['seconds']-3600)) for index, row in df1.iterrows()]
@@ -469,7 +447,7 @@ elif args.version in ['buoy_3hr']:
     df1.dropna(subset=['latitude','longitude'], how='any', inplace = True)
 
     #sample -2hr
-    df2 = atseadata.parse(atseadata.get_data(args.sourcefile),'2hr')
+    df2 = atseadata.get_data(args.sourcefile,'2hr')
     
     df2['seconds']= df2.apply(lambda row: atseadata.time(row['s1'],row['s2']), axis=1)
     df2['sampletime']= [index.floor('D')+ datetime.timedelta(seconds=(row['seconds']-7200)) for index, row in df2.iterrows()]
