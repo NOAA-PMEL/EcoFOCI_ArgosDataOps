@@ -7,7 +7,7 @@
 year=2018
 path="/home/pavlof/bell/Programs/Python/EcoFOCI_ArgosDataOps/data/raw_data/*.csv"
 
-for files in $path
+for files in $argosID
 do
     names=(${files//\// })
     outfile=${names[${#names[@]} - 1]}
