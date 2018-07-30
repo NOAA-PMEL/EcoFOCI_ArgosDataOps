@@ -15,11 +15,11 @@ do
 	if [[ "$outfile" =~ $(echo ^\($(paste -sd'|' ${path}/scripts/v2_buoy_ids.csv)\)$) ]]; then
 		#version2 buoys
 	    echo "processing file: $files"
-		python ARGOS_service_data_converter.py ${path}${files}.y${year} v2 -nc data/${files}.y${year}.nc
+		python ARGOS_service_data_converter.py ${files} v2 -nc data/${files}.nc
 	else
-		#metocean buoys
+		#metocean buoys - id's listed in a seperate file
 	    echo "processing file: $files"
-		python ARGOS_service_data_converter.py ${path}${files}.y${year} v1 -nc data/${files}.y${year}.nc
+		python ARGOS_service_data_converter.py ${files} v1 -nc data/${files}.nc
 	fi
 
 done
