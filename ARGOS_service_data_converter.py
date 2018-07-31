@@ -91,7 +91,7 @@ class ARGOS_SERVICE_Drifter(object):
         df['longitude']=df['longitude'] * -1 #convert to +W
 
         df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
-        df.drop('year_doy_hhmm',axis=1,inplace=True)
+        #df.drop('year_doy_hhmm',axis=1,inplace=True)
 
         return df
 
@@ -183,7 +183,7 @@ class ARGOS_SERVICE_Buoy(object):
         df['longitude']=df['longitude'] * -1 #convert to +W
 
         df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
-        df.drop('year_doy_hhmm',axis=1,inplace=True)
+        #df.drop('year_doy_hhmm',axis=1,inplace=True)
 
         return df
 
