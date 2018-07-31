@@ -71,7 +71,6 @@ dependencies:
   - urllib3=1.22
   - wheel=0.31.0
   - xz=5.2.3
-  - yaml=0.1.7
   - zeep=2.4.0
   - zlib=1.2.11
   - intel-openmp=2018.0.3
@@ -80,3 +79,4 @@ dependencies:
   - libgfortran-ng=7.2.0
   - mkl=2018.0.3
   - cmocean
+  - pyyaml

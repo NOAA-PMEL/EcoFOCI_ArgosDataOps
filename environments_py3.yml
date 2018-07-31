@@ -1,0 +1,11 @@
+name: ARGODrifters-py36
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - netcdf4
+  - numpy=1.14.5
+  - python=3
+  - zeep
+  - pyyaml
+  - cmocean
