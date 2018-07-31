@@ -23,15 +23,15 @@ do
 		if [[ "$outfile" =~ $(echo ^\($(paste -sd'|' ${v2file})\)$) ]]; then
 			#version2 buoys - id's listed in a seperate file
 		    echo "processing v2 drifter file: $files"
-			python ${progdir}ARGOS_service_data_converter.py ${files} v2 -nc ${progdir}data/${outfile}.nc
+			python ${progdir}ARGOS_service_data_converter.py ${files} v2 -nc ${progdir}data/${var}.nc
 		elif [[ "$outfile" =~ $(echo ^\($(paste -sd'|' ${buoyfile})\)$) ]]; then
 			#buoy - id's listed in a seperate file
 		    echo "processing mooring buoy file: $files"
-			#python ARGOS_service_data_converter.py ${files} buoy -nc data/${outfile}.nc
+			#python ARGOS_service_data_converter.py ${files} buoy -nc data/${var}.nc
 		else
 			#metocean buoys 
 		    echo "processing v1(metocean) drifter file: $files"
-			python ${progdir}ARGOS_service_data_converter.py ${files} v1 -nc ${progdir}data/${outfile}.nc
+			python ${progdir}ARGOS_service_data_converter.py ${files} v1 -nc ${progdir}data/${var}.nc
 		fi
 	fi
 done
