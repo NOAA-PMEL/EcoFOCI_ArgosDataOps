@@ -49,6 +49,11 @@ and for a drifter
     and output seconds since midnight.
  2018-03-12: Add netcdf output option
 
+ Compatibility:
+ ==============
+ python >=3.6 **tested**
+ python 2.7 **tested** but may break in the future
+
 """
 import argparse
 import datetime
@@ -136,6 +141,7 @@ class ARGOS_SERVICE_Drifter(object):
         except:
             output = self.missing
         return output
+
 
 class ARGOS_SERVICE_Buoy(object):
     r"""

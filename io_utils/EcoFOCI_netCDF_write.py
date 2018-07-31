@@ -148,7 +148,7 @@ class NetCDF_Create_Profile_Ragged1D(object):
             
         ### add variable attributes
         for i, v in enumerate(var_class): #4dimensional for all vars
-            print ("Adding Variable {0}").format(v)#
+            print("Adding Variable {0}".format(v))#
             v.setncattr('name',rec_var_name[i])
             v.long_name = rec_var_longname[i]
             v.generic_name = rec_var_generic_name[i]
