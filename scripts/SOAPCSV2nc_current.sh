@@ -17,11 +17,11 @@ do
     outfile=${names[${#names[@]} - 1]}
 
     if [ -s ${files} ]; then
-		if [[ "$outfile" =~ $(echo ^\($(paste -sd'|' ${buoyfile})\)$) ]]; then
+		if [[ "$outfile" == $(echo ^\($(paste -sd'|' ${buoyfile})\)$) ]]; then
 			#version2 buoys - id's listed in a seperate file
 		    echo "processing v2 drifter file: $files"
 			python ARGOS_service_data_converter.py ${files} v2 -nc data/${outfile}.nc
-		elif [[ "$outfile" =~ $(echo ^\($(paste -sd'|' ${v2file})\)$) ]]; then
+		elif [[ "$outfile" == $(echo ^\($(paste -sd'|' ${v2file})\)$) ]]; then
 			#buoy - id's listed in a seperate file
 		    echo "processing mooring buoy file: $files"
 			#python ARGOS_service_data_converter.py ${files} buoy -nc data/${outfile}.nc
