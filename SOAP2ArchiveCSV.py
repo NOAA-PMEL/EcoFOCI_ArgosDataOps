@@ -89,7 +89,7 @@ if args.drifteryearfiles:
 
     for k in gb.groups.keys():
       if k not in ['28882']:
-        print k
+        print(k)
         bd = gb.get_group(k)
         bd_thinned = bd[keep_columns].copy()
         bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).year), axis=1)
