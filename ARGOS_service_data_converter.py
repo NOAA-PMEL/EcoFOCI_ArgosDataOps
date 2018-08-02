@@ -502,4 +502,5 @@ if args.plot:
   driftermap = ArgosDrifters.ArgosPlot(df=df)
   #(ax,fig1) = driftermap.make_map(param='doy')
   (ax,fig1) = driftermap.make_map(param='sst')
+  fig1.savefig(args.sourcefile + '.png')
   
