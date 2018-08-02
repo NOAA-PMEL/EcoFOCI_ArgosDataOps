@@ -3,6 +3,9 @@
 *dailyArgosID_archive/
 *dailyArgosMessage*
 *yearlyArgosID/
-
-**data/
 *.pyc
+
+*data/year_archive/
+*data/raw_data/
+data/.DS_Store
+.DS_Store
