@@ -5,7 +5,8 @@
 *yearlyArgosID/
 *.pyc
 
-*data/year_archive/
-*data/raw_data/
+*data/year_archive/*.y*
+*data/raw_data/ARGO*
+
 data/.DS_Store
 .DS_Store
