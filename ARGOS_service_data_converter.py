@@ -151,7 +151,7 @@ class ARGOS_SERVICE_Buoy(object):
       self.missing = missing
 
     @staticmethod
-    def get_data(fobj=None, current='current'):
+    def get_data(fobj=None, time='current'):
         r"""
         Basic Method to open files.  Specific actions can be passes as kwargs for instruments
 
