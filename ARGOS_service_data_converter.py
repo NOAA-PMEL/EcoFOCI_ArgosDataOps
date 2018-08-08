@@ -94,7 +94,10 @@ class ARGOS_SERVICE_Drifter(object):
           parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
 
         df['longitude']=df['longitude'] * -1 #convert to +W
-
+        df['longitude']=df.longitude.round(3)
+        df['latitude']=df.latitude.round(3)
+        
+        
         df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
         #df.drop('year_doy_hhmm',axis=1,inplace=True)
 
@@ -151,7 +154,7 @@ class ARGOS_SERVICE_Buoy(object):
       self.missing = missing
 
     @staticmethod
-    def get_data(fobj=None, time='current'):
+    def get_data(fobj=None):
         r"""
         Basic Method to open files.  Specific actions can be passes as kwargs for instruments
 
@@ -493,7 +496,13 @@ if args.interpolate:
 
 """------------------------ output options----------------------"""
 if args.csv:
+    df['longitude']=df.longitude.apply(lambda x: "%.3f" % x )
+    df['latitude']=df.latitude.apply(lambda x: "%.3f" % x )
+    df['sst']=df.sst.apply(lambda x: "%.2f" % x)
+    df['strain']=df.strain.apply(lambda x: "%.1f" % x)
+    df['voltage']=df.voltage.apply(lambda x: "%.1f" % x)
     df.to_csv(args.csv)
+    
 
 if args.netcdf:
     pandas2netcdf(df=df,ofile=args.netcdf)
