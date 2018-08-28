@@ -495,12 +495,14 @@ if args.interpolate:
   df = df.resample('1H',label='right',closed='right').mean().interpolate(method='linear')
 
 """------------------------ output options----------------------"""
-if args.csv:
+if args.csv and (not args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
     df['longitude']=df.longitude.apply(lambda x: "%.3f" % x )
     df['latitude']=df.latitude.apply(lambda x: "%.3f" % x )
     df['sst']=df.sst.apply(lambda x: "%.2f" % x)
     df['strain']=df.strain.apply(lambda x: "%.1f" % x)
     df['voltage']=df.voltage.apply(lambda x: "%.1f" % x)
+    df.to_csv(args.csv)
+else:
     df.to_csv(args.csv)
     
 
