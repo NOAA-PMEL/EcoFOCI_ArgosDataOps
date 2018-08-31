@@ -1,6 +1,6 @@
 {
     "database": "ecofoci_drifters", 
     "host": "127.0.0.1", 
-   "password": "e43mqS4fusEaGJLE", 
+    "password": "e43mqS4fusEaGJLE", 
     "user": "pythonuser"
 }
