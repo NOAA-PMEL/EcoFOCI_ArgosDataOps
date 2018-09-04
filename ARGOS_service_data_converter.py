@@ -41,6 +41,7 @@ and for a drifter
 
  History:
  --------
+ 2018-09-05: Dont write empty dataframes to netcdf
  2018-07-30: Merge the get and parse functions... buffered or streamin not translating well. (programmer limitation)
  2018-03-20: Buoy wpak transmitted data has three consecutive hours included.  Use 
     this data to fill gaps when no location lock was completed.  Option is added as
@@ -311,6 +312,9 @@ class ARGOS_SERVICE_Buoy(object):
 
 def pandas2netcdf(df=None,ofile='data.nc'):
 
+  if df.empty:
+    return
+  else:
     df['time'] = [date2num(x[1],'hours since 1900-01-01T00:00:00Z') for x in enumerate(df.index)]
 
     EPIC_VARS_dict = ConfigParserLocal.get_config('config_files/drifters.yaml','yaml')
