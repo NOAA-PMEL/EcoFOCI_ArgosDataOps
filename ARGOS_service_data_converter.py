@@ -571,6 +571,8 @@ if args.geojson:
             )
         geojson_Features = ''
         for ind, row in df.iteritems():
+          print(row)
+          print(df[ind])
             geojson_Features = geojson_Features + (
             '{{\n'
             '"type": "Feature",\n'
