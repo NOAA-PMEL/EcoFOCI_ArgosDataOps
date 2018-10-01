@@ -582,9 +582,9 @@ if args.geojson:
             '}},\n'
             '"properties": {{\n'
             '"Date and Time": "{datetime}"'
-            '}}\n').format(lat=row['latitude'],lon=row['longitude'],
-                            ArgosID=row['argosid'],
-                            datetime=row['year_doy_hhmm'])
+            '}}\n').format(lat=df['latitude'][ind],lon=df['longitude'][ind],
+                            ArgosID=df['argosid'][ind],
+                            datetime=df['year_doy_hhmm'][ind])
             
         geojson_Features = geojson_Features + '}\n, '
 
