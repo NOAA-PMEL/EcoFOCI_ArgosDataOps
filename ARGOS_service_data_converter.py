@@ -41,6 +41,7 @@ and for a drifter
 
  History:
  --------
+ 2018-10-01: add geojson output option
  2018-09-05: Dont write empty dataframes to netcdf
  2018-07-30: Merge the get and parse functions... buffered or streamin not translating well. (programmer limitation)
  2018-03-20: Buoy wpak transmitted data has three consecutive hours included.  Use 
@@ -345,6 +346,9 @@ parser.add_argument('version',
 parser.add_argument('-csv','--csv', 
     type=str, 
     help='output as csv - full path')
+parser.add_argument('-geojson','--geojson', 
+    type=str, 
+    help='output as geojson - full path')
 parser.add_argument('-nc','--netcdf', 
     type=str, 
     help='output as netcdf - full path')
@@ -509,6 +513,91 @@ if args.csv and (not args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
 else:
     df.to_csv(args.csv)
     
+if args.geojson:
+        """
+        GeoJSON format example:
+        {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [102.0, 0.6]
+              },
+              "properties": {
+                "prop0": "value0"
+              }
+            },
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                  [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
+                ]
+              },
+              "properties": {
+                "prop1": 0.0,
+                "prop0": "value0"
+              }
+            },
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [
+                    [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0],
+                    [100.0, 0.0]
+                  ]
+                ]
+              },
+              "properties": {
+                "prop1": {
+                  "this": "that"
+                },
+                "prop0": "value0"
+              }
+            }
+          ]
+        }"""
+
+        print("Generating .geojson as single points per cast")
+        geojson_header = (
+            '{\n'
+            '"type": "FeatureCollection",\n'
+            '"features": [\n'
+            )
+        geojson_Features = ''
+        for ind, row in df.iteritems():
+            geojson_Features = geojson_Features + (
+            '{{\n'
+            '"type": "Feature",\n'
+            '"id": {ArgosID},\n'
+            '"geometry": {{\n'
+            '"type": "Point",\n'
+            '"coordinates": '
+            '[{lon},{lat}]'
+            '}},\n'
+            '"properties": {{\n'
+            '"Date and Time": "{datetime}"'
+            '}}\n').format(lat=row['latitude'],lon=row['longitude'],
+                            ArgosID=row['StationNameID'],
+                            datetime=row['year_doy_hhmm'])
+            
+        geojson_Features = geojson_Features + '}\n, '
+
+        geojson_tail = (
+            '}\n'
+            ']\n'
+            '}\n'
+            )
+          
+        fid = open(args.geojson + '.geo.json', 'wb')
+        fid.write( geojson_header + geojson_Features + geojson_tail )
+        fid.close()  
+
 
 if args.netcdf:
     pandas2netcdf(df=df,ofile=args.netcdf)
