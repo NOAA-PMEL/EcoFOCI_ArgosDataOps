@@ -585,7 +585,7 @@ if args.geojson and (args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
             '}},\n'
             '"properties": {{\n'
             '"datetime": "{timeprint}"'
-            '}}\n').format(lat=(-row['latitude'],lon=(-1*row['longitude']),
+            '}}\n').format(lat=row['latitude'],lon=(-1*row['longitude']),
                             ArgosID=row['argosid'],
                             timeprint=row['year_doy_hhmm'])
          
