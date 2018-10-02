@@ -571,7 +571,7 @@ if args.geojson and (args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
             )
         geojson_Features = ''
         for ind, row in df.iteritems():
-            print(df[ind])
+            print(row)
             geojson_Features = geojson_Features + (
             '{{\n'
             '"type": "Feature",\n'
