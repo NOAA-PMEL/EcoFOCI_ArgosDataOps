@@ -589,7 +589,8 @@ if args.geojson and (args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
                             ArgosID=row['argosid'],
                             timeprint=row['year_doy_hhmm'])
          
-        geojson_Features = geojson_Features + '}\n, '
+            if ind != len(df):
+              geojson_Features = geojson_Features + '}\n, '
 
         geojson_tail = (
             '}\n'
