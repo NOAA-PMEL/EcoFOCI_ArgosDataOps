@@ -597,7 +597,7 @@ if args.geojson and (args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
             '}\n'
             )
           
-        fid = open(args.geojson, 'wb')
+        fid = open(args.geojson, 'w')
         fid.write( geojson_header + geojson_Features + geojson_tail )
         fid.close()  
 
