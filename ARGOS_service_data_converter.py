@@ -586,7 +586,7 @@ if args.geojson and (args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
             '"Date and Time": "{datetime}"'
             '}}\n').format(lat=df['latitude'][ind],lon=df['longitude'][ind],
                             ArgosID=df['argosid'][ind],
-                            datetime=df['year_doy_hhmm'][ind])
+                            datetime=df['sampletime'][ind])
             
         geojson_Features = geojson_Features + '}\n, '
 
