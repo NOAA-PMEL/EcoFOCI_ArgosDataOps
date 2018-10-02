@@ -513,7 +513,7 @@ if args.csv and (not args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
 else:
     df.to_csv(args.csv)
     
-if args.geojson:
+if args.geojson and (args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
         """
         GeoJSON format example:
         {
