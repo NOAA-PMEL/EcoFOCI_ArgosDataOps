@@ -586,7 +586,7 @@ if args.geojson and (args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
               '"Date and Time": "{datetime}"'
               '}}\n').format(lat=df['latitude'][ind],lon=df['longitude'][ind],
                               ArgosID=df['argosid'][ind],
-                              datetime=df['sampletime'][ind])
+                              datetime=df.index[ind])
             except:
               continue            
         geojson_Features = geojson_Features + '}\n, '
@@ -597,7 +597,7 @@ if args.geojson and (args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
             '}\n'
             )
           
-        fid = open(args.geojson + '.geo.json', 'wb')
+        fid = open(args.geojson, 'wb')
         fid.write( geojson_header + geojson_Features + geojson_tail )
         fid.close()  
 
