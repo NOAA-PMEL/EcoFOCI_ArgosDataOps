@@ -572,23 +572,22 @@ if args.geojson and (args.version in ['buoy_3hr', 'buoy','met','sfc_package']):
         geojson_Features = ''
         for ind, row in df.iteritems():
             print(row)
-            try:
-              geojson_Features = geojson_Features + (
-              '{{\n'
-              '"type": "Feature",\n'
-              '"id": {ArgosID},\n'
-              '"geometry": {{\n'
-              '"type": "Point",\n'
-              '"coordinates": '
-              '[{lon},{lat}]'
-              '}},\n'
-              '"properties": {{\n'
-              '"Date and Time": "{datetime}"'
-              '}}\n').format(lat=df['latitude'][ind],lon=df['longitude'][ind],
-                              ArgosID=df['argosid'][ind],
-                              datetime=df.index[ind])
-            except:
-              continue            
+
+            geojson_Features = geojson_Features + (
+            '{{\n'
+            '"type": "Feature",\n'
+            '"id": {ArgosID},\n'
+            '"geometry": {{\n'
+            '"type": "Point",\n'
+            '"coordinates": '
+            '[{lon},{lat}]'
+            '}},\n'
+            '"properties": {{\n'
+            '"Date and Time": "{datetime}"'
+            '}}\n').format(lat=df['latitude'][ind],lon=df['longitude'][ind],
+                            ArgosID=df['argosid'][ind],
+                            datetime=df.index[ind])
+         
         geojson_Features = geojson_Features + '}\n, '
 
         geojson_tail = (
