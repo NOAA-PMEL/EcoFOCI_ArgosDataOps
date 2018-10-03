@@ -4,15 +4,18 @@ Mooring: &16BSM2A
   StartDate: "2016-05-01"
   EndDate: "2016-10-01"
   MooringID: '16BSM-2A'
+  WatchRadius_km: 5 
 
 Mooring: &17BSM2A
   Declination: 11.0
   StartDate: "2017-05-01"
   EndDate: "2017-09-24"
   MooringID: '17BSM-2A'
-
+  WatchRadius_km: 5 
+  
 Mooring: &18BSM2A
   Declination: 11.0
   StartDate: "2018-04-30"
   EndDate: "2018-10-02"
   MooringID: '18BSM-2A'
+  WatchRadius_km: 5 
