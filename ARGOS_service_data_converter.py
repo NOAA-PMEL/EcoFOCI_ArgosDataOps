@@ -74,6 +74,37 @@ from plots import ArgosDrifters
 
 """-----------------------------------------------------Data Classes----------------------------------------------------------"""
 
+class ARGOS_SERVICE_Beacon(object):
+    r"""
+
+    """
+    def __init__(self, missing=1e35):
+      self.missing = missing
+
+    @staticmethod
+    def get_data(fobj=None):
+        r"""
+        Basic Method to open files.  Specific actions can be passes as kwargs for instruments
+
+        """
+        argo_to_datetime =lambda date: datetime.datetime.strptime(date, '%Y %j %H%M')
+
+        header=['argosid','latitude','longitude','year','doy','hhmm','s1','s2','s3','s4']
+        df = pd.read_csv(fobj,delimiter='\s+',header=None,
+          names=header,index_col=False,error_bad_lines=False,
+          dtype={'year':str,'doy':str,'hhmm':str,'s1':str,'s2':str,'s3':str,'s4':str},
+          parse_dates=[['year','doy','hhmm']],date_parser=argo_to_datetime)
+
+        df['longitude']=df['longitude'] * -1 #convert to +W
+        df['longitude']=df.longitude.round(3)
+        df['latitude']=df.latitude.round(3)
+        
+        
+        df.set_index(pd.DatetimeIndex(df['year_doy_hhmm']),inplace=True)
+        #df.drop('year_doy_hhmm',axis=1,inplace=True)
+
+        return df
+
 class ARGOS_SERVICE_Drifter(object):
     r"""
 
@@ -342,7 +373,7 @@ parser.add_argument('sourcefile',
 parser.add_argument('version', 
     metavar='version', 
     type=str, 
-    help='buoy,buoy_3hr,v1-metocean(pre-2017),v2-vendor(2017)')
+    help='beacon,buoy,buoy_3hr,v1-metocean(pre-2017),v2-vendor(2017)')
 parser.add_argument('-csv','--csv', 
     type=str, 
     help='output as csv - full path')
@@ -365,8 +396,15 @@ parser.add_argument('-interpolate','--interpolate',
 args = parser.parse_args()
 
 
-if args.version in ['v1','V1','version1','v1-metocean']:
+if args.version in ['beacon']:
 
+    atseadata = ARGOS_SERVICE_Beacon()
+
+    df = atseadata.get_data(args.sourcefile)
+
+    df.drop_duplicates(subset=['year_doy_hhmm','latitude','longitude'],keep='last',inplace=True)
+    
+elif args.version in ['v1','V1','version1','v1-metocean']:
     atseadata = ARGOS_SERVICE_Drifter()
 
     df = atseadata.get_data(args.sourcefile)
@@ -379,6 +417,7 @@ if args.version in ['v1','V1','version1','v1-metocean']:
 
     df.drop(df.index[~df['checksum']],inplace=True)
     df.drop_duplicates(subset='year_doy_hhmm',keep='last',inplace=True)
+
 
 elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
     
