@@ -431,7 +431,11 @@ elif args.version in ['v2','V2','version2','v2-vendor(2017)']:
     df['checksum']= df.apply(lambda row: atseadata.checksum_argos(row['s1'], row['s2'], row['s3'], row['s4']), axis=1)
     df.drop(['s1','s2','s3','s4','s5','s6','s7','s8'], axis=1, inplace=True)
 
-    df.drop(df.index[~df['checksum']],inplace=True)
+    try:
+      df.drop(df.index[~df['checksum']],inplace=True)
+    except TypeError:
+      pass
+
     df.drop_duplicates(subset=['year_doy_hhmm','latitude','longitude'],keep='last',inplace=True)
 
 elif args.version in ['buoy','met','sfc_package']:
