@@ -46,7 +46,11 @@ parser.add_argument('-getactiveids', '--getactiveids',
     help='get active listing of platformIds')
 parser.add_argument('-buoyyearfiles', '--buoyyearfiles',
     action="store_true", 
-    help='create buoy year files - only for 028882')
+    help='create buoy year files - 28882 or 28883')
+parser.add_argument('-buoyid', '--buoyid',
+    type=str, 
+    default='28882',
+    help='default - 28882')
 parser.add_argument('-drifteryearfiles', '--drifteryearfiles',
     action="store_true", 
     help='create all drifter year files from activeid listing')
@@ -69,7 +73,7 @@ if args.buoyyearfiles:
 
     keep_columns=['platformId','latitude','longitude','bestDate','value'] + ['value.'+str(i) for i in range(1,32)] + ['locationClass']
     try:
-      bd = gb.get_group('28882')
+      bd = gb.get_group(args.buoyid)
 
       bd_thinned = bd[keep_columns].copy()
       bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).year), axis=1)
@@ -77,7 +81,7 @@ if args.buoyyearfiles:
       bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).hour).zfill(2)+str(pd.to_datetime(row['bestDate']).minute).zfill(2), axis=1)
 
       out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,32)] + ['locationClass']
-      bd_thinned[out_columns].to_csv('028882.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+      bd_thinned[out_columns].to_csv('0'+args.buoyid+'.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
     except:
       print("no 28882 data in this file")
 
@@ -88,7 +92,7 @@ if args.drifteryearfiles:
     keep_columns=['platformId','latitude','longitude','locationDate','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
 
     for k in gb.groups.keys():
-      if k not in ['28882']:
+      if k not in ['28882','28883']:
         print(k)
         bd = gb.get_group(k)
         bd_thinned = bd[keep_columns].copy()
