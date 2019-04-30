@@ -22,7 +22,7 @@ Mooring: &18BSM2A
 
 Mooring: &19BSM2A
   Declination: 11.0
-  StartDate: "2019-04-28"
+  StartDate: "2019-04-25"
   EndDate: "2019-10-02"
   MooringID: '19BSM-2A'
   WatchRadius_km: 5 
