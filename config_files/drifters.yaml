@@ -35,4 +35,4 @@ location_quality:
   name: location_quality
   generic_name: location_quality
   longname: 'location quality flag: 0 worst, 1, 2, 3 best'
-  units:  
+  units:  ''
