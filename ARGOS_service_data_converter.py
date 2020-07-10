@@ -542,6 +542,8 @@ elif args.version in ["v1", "V1", "version1", "v1-metocean"]:
         axis=1,
     )
     df["location_quality"] = df["s8"]
+    df["location_quality"] = pd.to_numeric(df["location_quality"], errors="coerce")
+
     df.drop(["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
 
     df.drop(df.index[~df["checksum"]], inplace=True)
@@ -564,6 +566,8 @@ elif args.version in ["v2", "V2", "version2", "v2-vendor(2017)"]:
         axis=1,
     )
     df["location_quality"] = df["s8"]
+    df["location_quality"] = pd.to_numeric(df["location_quality"], errors="coerce")
+
     df.drop(["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
 
     try:
