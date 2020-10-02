@@ -2,6 +2,8 @@
 
 To retrieve and archive data from the Argo service.  Used primarily for drogued drifters and peggy near-realtime wpak data
 
+***Note: Currently Plots are Broken as basemap needs to be upgraded to cartopy***
+
 ***Written/Tested for:*** 
 
 - python >=3.6 **tested**
