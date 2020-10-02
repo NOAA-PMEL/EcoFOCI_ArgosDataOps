@@ -20,8 +20,8 @@ Note:
 """
 
 import argparse
-import zeep
 import datetime
+import zeep
 
 # parse incoming command line options
 parser = argparse.ArgumentParser(description='Connect to argos.cls SOAP server for FOCI')

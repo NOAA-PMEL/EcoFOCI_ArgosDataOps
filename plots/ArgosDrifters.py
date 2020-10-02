@@ -1,7 +1,10 @@
 """
 ArgosDrifters.py
 
-Using Anaconda packaged Python 
+History:
+  Basemap is depricated in Python3/matplotlib>=3.0
+  TODO: Change to cartopy
+
 """
 
 #System Stack
