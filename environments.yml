@@ -9,7 +9,6 @@ dependencies:
   - zeep
   - pyyaml
   - cmocean
-  - spyder
   - matplotlib
   - basemap
   - basemap-data-hires
