@@ -25,7 +25,7 @@ import mysql.connector
 parser = argparse.ArgumentParser(description='Plot drifter track on map')
 parser.add_argument('-if','--infile', nargs=1, type=str, 
                     help='full path to input file')
-parser.add_argument('-p', '--plot', type=str, 
+parser.add_argument('-p', '--plot', nargs='+', type=str, 
                     help="make plot of 'sst', 'strain', or 'speed' ")
 parser.add_argument('-f', '--file', action="store_true",
                     help="output csv file of data")
@@ -110,16 +110,23 @@ def lon_360(lon):
     else:
         return lon
 
-def get_extents(df):
-    nlat = df.latitude.max() + 3
-    slat = df.latitude.min() - 3
-    wlon = df.longitude.min() - 5
-    elon = df.longitude.max() + 5
-
+def get_extents(df, zoom=False):
+    #first convert all longitudes to 0-360
+    df['lon2'] = df.longitude.apply(lambda x: x + 360 if x < 0 else x)
+    if zoom:    
+        nlat = df.latitude.max() + .5
+        slat = df.latitude.min() - .5
+        wlon = df.lon2.min() - .5
+        elon = df.lon2.max() + .5
+    else:
+        nlat = df.latitude.max() + 3
+        slat = df.latitude.min() - 3
+        wlon = df.lon2.min() - 5
+        elon = df.lon2.max() + 5
     extents = [wlon, elon, slat, nlat]
     return extents
 
-def plot_variable(dfin, var, filename):
+def plot_variable(dfin, var, filename, zoom=False):
     proj = ccrs.LambertConformal(central_longitude=-165, central_latitude=60)
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1, projection=proj)
@@ -138,15 +145,25 @@ def plot_variable(dfin, var, filename):
                cmap=cmap, vmin=vmin, vmax=vmax )
     plt.colorbar(plotted)
     #ax.plot(dfin['longitude'], dfin['latitude'], transform=ccrs.PlateCarree())
-    ax.set_extent(get_extents(dfin))
+    
     if args.legacy:
         trajectory_id=re.search(r'(\d{5,})', filename).group(0)
         trajectory_id=trajectory_id + '_sigrid_processing'
     else:
         trajectory_id = str(dfin.trajectory_id[0])
+    
+    if zoom:
+        ax.set_extent(get_extents(dfin, zoom))
+        filename = trajectory_id + "_" + var + "_zoomed.png"
+        title = trajectory_id + " Zoomed " + var
         
-    title = trajectory_id + " " + var
-    filename = trajectory_id + "_" + var + ".png"
+    else:
+        ax.set_extent(get_extents(dfin))
+        filename = trajectory_id + "_" + var + ".png"
+        title = trajectory_id + " " + var
+        
+    
+    
     ax.set_title(title)
     
     return fig, ax, filename
@@ -359,9 +376,18 @@ if args.ice:
     df_out.to_csv(outfile)
 
 if args.plot:
-    fig, ax, plot_file = plot_variable(df, args.plot, filename)
+    if 'zoom' in args.plot:
+        fig, ax, plot_file = plot_variable(df, args.plot[0], filename, 'zoom')
+    else:
+        fig, ax, plot_file = plot_variable(df, args.plot[0], filename)
 #    ax.scatter(df_hour['longitude'], df_hour['latitude'], s=10, c=df_hour.speed, transform=ccrs.PlateCarree(), 
 #               cmap=cmocean.cm.speed, vmin=0, vmax=120 )
+    if 'date' in args.plot:
+        df_week = df.resample('W').last()
+        #df_week = pd.concat([df_week, df.tail(1)])
+        df_week['date'] = df_week.index.strftime("%m/%d")
+        df_week.apply(lambda x: ax.text(x.longitude,x.latitude,'  '+x.date, transform=ccrs.PlateCarree()), axis=1)
+        df_week.apply(lambda x: ax.plot(x.longitude,x.latitude, 'r^', transform=ccrs.PlateCarree()), axis=1)
     fig.savefig(plot_file)
 
 if args.file:
