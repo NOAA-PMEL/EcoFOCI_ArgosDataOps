@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser(description='Plot drifter track on map')
 parser.add_argument('-if','--infile', nargs=1, type=str, 
                     help='full path to input file')
 parser.add_argument('-p', '--plot', nargs='+', type=str, 
-                    help="make plot of 'sst', 'strain', or 'speed' ")
+                    help="make plot of 'sst', 'strain', or 'speed', alternately zoom in with 'zoom' and place occasional date with 'date'")
 parser.add_argument('-f', '--file', action="store_true",
                     help="output csv file of data")
 parser.add_argument('-i', '--ice', action="store_true",
