@@ -25,18 +25,16 @@ import mysql.connector
 parser = argparse.ArgumentParser(description='Plot drifter track on map')
 parser.add_argument('-if','--infile', nargs=1, type=str, 
                     help='full path to input file')
-parser.add_argument('-p', '--plot', type=str, 
-                    help="make plot of 'sst', 'strain', or 'speed' ")
+parser.add_argument('-p', '--plot', nargs='+', type=str, 
+                    help="make plot of 'sst', 'strain', or 'speed', alternately zoom in with 'zoom' and place occasional date with 'date'")
 parser.add_argument('-f', '--file', action="store_true",
                     help="output csv file of data")
 parser.add_argument('-i', '--ice', action="store_true",
                     help="add ice concentration as last field and output file")
 parser.add_argument('-ph', '--phyllis', action="store_true",
                     help="output format for phyllis friendly processing")
-parser.add_argument('-d', '--date', action="store_true",
-                    help="add occasional date to track")
 parser.add_argument('-e', '--erddap', nargs='+',
-                    help="get directly from akutan erddap server, requires argos id followed desired years")
+                    help="get directly from akutan erddap server, requires argos id followed by desired years")
 parser.add_argument('-H', '--hour', action="store_true",
                     help="resample all data to even hour and interpolate")
 parser.add_argument('-s', '--speed', action="store_true",
@@ -47,7 +45,7 @@ parser.add_argument('-l', '--legacy', nargs='?',
                     help="file has legacy format from ecofoci website, if file contains ice concentraion, add 'i'")
 parser.add_argument('-c', '--cut', nargs='*',
                     type=lambda x: datetime.strptime(x, "%Y-%m-%dT%H:%M:%S"),
-                    help="date span in format '2019-01-01T00:00:00 2019-01-01T00:00:01' for example")
+                    help="date span in format '2019-01-01T00:00:00 2019-01-01T00:00:01' also works with only beginning date and if no date is given it will try using the drifter database")
 parser.add_argument('-de', '--despike', action="store_true",
                      help="Do some simple despiking of sst")
 args=parser.parse_args()
@@ -110,16 +108,23 @@ def lon_360(lon):
     else:
         return lon
 
-def get_extents(df):
-    nlat = df.latitude.max() + 3
-    slat = df.latitude.min() - 3
-    wlon = df.longitude.min() - 5
-    elon = df.longitude.max() + 5
-
+def get_extents(df, zoom=False):
+    #first convert all longitudes to 0-360
+    df['lon2'] = df.longitude.apply(lambda x: x + 360 if x < 0 else x)
+    if zoom:    
+        nlat = df.latitude.max() + .5
+        slat = df.latitude.min() - .5
+        wlon = df.lon2.min() - .5
+        elon = df.lon2.max() + .5
+    else:
+        nlat = df.latitude.max() + 3
+        slat = df.latitude.min() - 3
+        wlon = df.lon2.min() - 5
+        elon = df.lon2.max() + 5
     extents = [wlon, elon, slat, nlat]
     return extents
 
-def plot_variable(dfin, var, filename):
+def plot_variable(dfin, var, filename, zoom=False):
     proj = ccrs.LambertConformal(central_longitude=-165, central_latitude=60)
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1, projection=proj)
@@ -138,15 +143,25 @@ def plot_variable(dfin, var, filename):
                cmap=cmap, vmin=vmin, vmax=vmax )
     plt.colorbar(plotted)
     #ax.plot(dfin['longitude'], dfin['latitude'], transform=ccrs.PlateCarree())
-    ax.set_extent(get_extents(dfin))
+    
     if args.legacy:
         trajectory_id=re.search(r'(\d{5,})', filename).group(0)
         trajectory_id=trajectory_id + '_sigrid_processing'
     else:
         trajectory_id = str(dfin.trajectory_id[0])
+    
+    if zoom:
+        ax.set_extent(get_extents(dfin, zoom))
+        filename = trajectory_id + "_" + var + "_zoomed.png"
+        title = trajectory_id + " Zoomed " + var
         
-    title = trajectory_id + " " + var
-    filename = trajectory_id + "_" + var + ".png"
+    else:
+        ax.set_extent(get_extents(dfin))
+        filename = trajectory_id + "_" + var + ".png"
+        title = trajectory_id + " " + var
+        
+    
+    
     ax.set_title(title)
     
     return fig, ax, filename
@@ -170,16 +185,17 @@ def trim_data(df, delta_t):
             start = results[0].strftime('%Y-%m-%d %H:%M:%S')
             drifter_db.close()
             print("Drifter",argos_id,"start time is",start)
-            return df[start:]
+            #return df[start:]
+            return df.loc[start:]
         except:
              print("Database not available!")
     elif len(delta_t) == 1:
         start = delta_t[0].strftime('%Y-%m-%d %H:%M:%S')
-        return df[start:]
+        return df.loc[start:]
     elif len(delta_t) == 2:
         start = delta_t[0].strftime('%Y-%m-%d %H:%M:%S')
         end = delta_t[1].strftime('%Y-%m-%d %H:%M:%S')
-        return df[start:end]
+        return df.loc[start:end]
     else:
         quit("Too many cut arguments!")
     
@@ -359,9 +375,18 @@ if args.ice:
     df_out.to_csv(outfile)
 
 if args.plot:
-    fig, ax, plot_file = plot_variable(df, args.plot, filename)
+    if 'zoom' in args.plot:
+        fig, ax, plot_file = plot_variable(df, args.plot[0], filename, 'zoom')
+    else:
+        fig, ax, plot_file = plot_variable(df, args.plot[0], filename)
 #    ax.scatter(df_hour['longitude'], df_hour['latitude'], s=10, c=df_hour.speed, transform=ccrs.PlateCarree(), 
 #               cmap=cmocean.cm.speed, vmin=0, vmax=120 )
+    if 'date' in args.plot:
+        df_week = df.resample('W').last()
+        #df_week = pd.concat([df_week, df.tail(1)])
+        df_week['date'] = df_week.index.strftime("%m/%d")
+        df_week.apply(lambda x: ax.text(x.longitude,x.latitude,'  '+x.date, transform=ccrs.PlateCarree()), axis=1)
+        df_week.apply(lambda x: ax.plot(x.longitude,x.latitude, 'r^', transform=ccrs.PlateCarree()), axis=1)
     fig.savefig(plot_file)
 
 if args.file:
