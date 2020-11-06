@@ -33,10 +33,8 @@ parser.add_argument('-i', '--ice', action="store_true",
                     help="add ice concentration as last field and output file")
 parser.add_argument('-ph', '--phyllis', action="store_true",
                     help="output format for phyllis friendly processing")
-parser.add_argument('-d', '--date', action="store_true",
-                    help="add occasional date to track")
 parser.add_argument('-e', '--erddap', nargs='+',
-                    help="get directly from akutan erddap server, requires argos id followed desired years")
+                    help="get directly from akutan erddap server, requires argos id followed by desired years")
 parser.add_argument('-H', '--hour', action="store_true",
                     help="resample all data to even hour and interpolate")
 parser.add_argument('-s', '--speed', action="store_true",
@@ -47,7 +45,7 @@ parser.add_argument('-l', '--legacy', nargs='?',
                     help="file has legacy format from ecofoci website, if file contains ice concentraion, add 'i'")
 parser.add_argument('-c', '--cut', nargs='*',
                     type=lambda x: datetime.strptime(x, "%Y-%m-%dT%H:%M:%S"),
-                    help="date span in format '2019-01-01T00:00:00 2019-01-01T00:00:01' for example")
+                    help="date span in format '2019-01-01T00:00:00 2019-01-01T00:00:01' also works with only beginning date and if no date is given it will try using the drifter database")
 parser.add_argument('-de', '--despike', action="store_true",
                      help="Do some simple despiking of sst")
 args=parser.parse_args()
@@ -187,16 +185,17 @@ def trim_data(df, delta_t):
             start = results[0].strftime('%Y-%m-%d %H:%M:%S')
             drifter_db.close()
             print("Drifter",argos_id,"start time is",start)
-            return df[start:]
+            #return df[start:]
+            return df.loc[start:]
         except:
              print("Database not available!")
     elif len(delta_t) == 1:
         start = delta_t[0].strftime('%Y-%m-%d %H:%M:%S')
-        return df[start:]
+        return df.loc[start:]
     elif len(delta_t) == 2:
         start = delta_t[0].strftime('%Y-%m-%d %H:%M:%S')
         end = delta_t[1].strftime('%Y-%m-%d %H:%M:%S')
-        return df[start:end]
+        return df.loc[start:end]
     else:
         quit("Too many cut arguments!")
     
