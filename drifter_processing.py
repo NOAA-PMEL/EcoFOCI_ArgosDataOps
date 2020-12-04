@@ -238,6 +238,8 @@ def hour(df):
     
     #use linear interpolation to fill in gaps
     df_hour.interpolate(inplace=True, limit=12)
+    #set trajectory_id back to integer
+    df_hour['trajectory_id'] = df_hour.trajectory_id.astype(int)
     return df_hour
 
 if args.erddap:
@@ -320,12 +322,9 @@ if args.cut or args.cut == []:
     
     df = trim_data(df, args.cut)
 
-if args.hour: #resample data to on an even hour
-    df_hour = hour(df)    
-
-if args.speed: #now calculate distance for drifter speed calculation
     
-    df_speed = speed(df_hour)
+
+
 #now can do plotting stuff if selected
 if args.ice:
     df_hour['lon_360'] = df_hour.apply(lambda x: lon_360(x.longitude), axis=1)
@@ -389,23 +388,10 @@ if args.plot:
         df_week.apply(lambda x: ax.plot(x.longitude,x.latitude, 'r^', transform=ccrs.PlateCarree()), axis=1)
     fig.savefig(plot_file)
 
-if args.file:
-    if args.hour:
-        df_out = df_hour
-        #df_out = df[['trajectory_id','latitude','longitude','sst','strain','voltage','speed']]
-        #df_out = df_out.round({'latitude':3, 'longitude':3,'sst':2,'strain':1,'voltage':1,'speed':1})
-    else:
-        df_out = df
-    
-    if args.cut:
-        outfile = str(df_out.trajectory_id[0]) + '_trimmed.csv'
-    else:
-        outfile = str(df_out.trajectory_id[0]) + '_reformatted.csv'
-    df_out.to_csv(outfile)
 
 if args.despike:
     #create empty df
-    
+       
     df['sst_pass1'] = df.sst
     df['sst_pass2'] = df.sst
     #group by day first
@@ -457,14 +443,31 @@ if args.despike:
         return df_ds
     df_ds = remove_spikes(df, pass1_array, 'sst_pass1')
     df_ds = remove_spikes(df_ds, pass2_array, 'sst_pass2')
-    df_ds['sst_combined'] = df_ds['sst_pass1'].combine_first(df_ds["sst_pass2"])
+    df_ds['sst_despiked'] = df_ds['sst_pass1'].combine_first(df_ds["sst_pass2"])
     #reorder columns so the print nicely
-    df_ds = df_ds[['trajectory_id', 'latitude', 'longitude', 'strain', 'voltage', 'sst', 'sst_pass1', 'sst_pass2', 'sst_combined']]
+    df_ds = df_ds[['trajectory_id', 'latitude', 'longitude', 'strain', 'voltage', 'sst', 'sst_pass1', 'sst_pass2', 'sst_despiked']]
     argos_id = str(df.trajectory_id[0])
     f = open(argos_id + "_despiked_full_.log", 'w')
     f.write(df_ds.to_string())
     f.close()
     pd.set_option('display.max.row', 10)
+    df_orig = df
+    df=df_ds
+if args.hour: #resample data to on an even hour
+    if args.despike:
+        df_hour=hour(df_ds)
+    else:
+        df_hour = hour(df)
+    df=df_orig
+    df=df_hour
+
+if args.speed: #now calculate distance for drifter speed calculation
+    
+    df_speed = speed(df_hour)
+    df=df_orig
+    df=df_speed
+        
+        
 if args.phyllis:
     df_hour['doy'] = df_hour.index.strftime('%j')
     df_hour['hour'] = df_hour.index.strftime('%H')
@@ -476,4 +479,21 @@ if args.phyllis:
     df_phy.to_csv(outfile, sep=" ", index=False)
     
 
-    
+if args.file:
+    trajectory_id = str(df.trajectory_id[0])
+    if args.hour and args.speed and args.despike:
+        vars=['trajectory_id','latitude','longitude','strain','voltage','sst','sst_despiked','speed','U','V']
+        suffix='_t_despiked_speed_hour.csv'
+    elif args.hour and args.despike:
+        vars=['trajectory_id','latitude','longitude','strain','voltage','sst','sst_despiked']
+        suffix='_t_despiked_hour.csv'
+    elif args.hour and args.speed:  
+        vars=['trajectory_id','latitude','longitude','strain','voltage','sst','speed','U','V']
+        suffix='_speed_hour.csv'
+    else:
+        vars=['trajectory_id','latitude','longitude','strain','voltage','sst']
+        suffix='_reformatted.csv'
+    df_out=df[vars]
+    outfile = trajectory_id + suffix
+    df_out.to_csv(outfile)
+  
