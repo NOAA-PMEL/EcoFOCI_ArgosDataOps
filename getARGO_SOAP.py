@@ -20,11 +20,19 @@ Note:
 """
 
 import argparse
-import zeep
 import datetime
+import zeep
 
 # parse incoming command line options
 parser = argparse.ArgumentParser(description='Connect to argos.cls SOAP server for FOCI')
+parser.add_argument('username',
+    metavar='username',
+    type=str,
+    help='program username')
+parser.add_argument('password',
+    metavar='password',
+    type=str,
+    help='program password')
 parser.add_argument('service', 
     metavar='service', 
     type=str,
@@ -58,8 +66,8 @@ if args.startDate:
     startDate = datetime.datetime.strptime(args.startDate,'%Y-%m-%dT%H:%M:%S')
     endDate   = startDate + datetime.timedelta(seconds=args.recordlength) 
 
-argodic = {'username':'bparker',
-           'password':'invest',
+argodic = {'username':args.username,
+           'password':args.password,
            args.idMode:args.idnumber,
            'period':{'startDate':startDate,'endDate':endDate},
            'mostRecentPassages':True,

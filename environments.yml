@@ -5,11 +5,10 @@ channels:
 dependencies:
   - netcdf4
   - numpy>=1.14.5
-  - python=3
+  - python=3.7
   - zeep
   - pyyaml
   - cmocean
-  - spyder
   - matplotlib
   - basemap
   - basemap-data-hires
