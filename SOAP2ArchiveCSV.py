@@ -99,6 +99,10 @@ if args.drifteryearfiles:
         bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).year), axis=1)
         bd_thinned['doy'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).dayofyear), axis=1)
         bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).hour).zfill(2)+str(pd.to_datetime(row['locationDate']).minute).zfill(2), axis=1)
-
-        out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
-        bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+        #make special case for 122531, the peggy backup locator buoy
+        if k=='122531':
+          out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['locationClass']
+          bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+        else:
+          out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
+          bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
