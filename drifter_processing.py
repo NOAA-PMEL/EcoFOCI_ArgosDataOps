@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser(description='Plot drifter track on map')
 parser.add_argument('-if','--infile', nargs=1, type=str, 
                     help='full path to input file')
 parser.add_argument('-p', '--plot', nargs='+', type=str, 
-                    help="make plot of 'sst', 'strain', or 'speed', alternately zoom in with 'zoom' and place occasional date with 'date'")
+                    help="make plot of 'sst', 'strain', or 'speed', alternately zoom in with 'zoom' and place occasional date with 'date', add origin beginning with 'origin'")
 parser.add_argument('-f', '--file', action="store_true",
                     help="output csv file of data")
 parser.add_argument('-i', '--ice', action="store_true",
@@ -175,7 +175,9 @@ def trim_data(df, delta_t):
                                          database='ecofoci_drifters')
             cursor = drifter_db.cursor()
             argos_id = str(df.trajectory_id[0])
-            query_string = "select releasedate from drifter_ids where argosnumber=" + argos_id + " and isactive='Y'"
+            query_string = "select releasedate from drifter_ids where argosnumber=" + argos_id        
+            #was originally like this, not sure why I had the "isactive" in there 
+            #query_string = "select releasedate from drifter_ids where argosnumber=" + argos_id + " and isactive='Y'"
             #print(query_string)
             query = (query_string)
             cursor.execute(query)
@@ -387,6 +389,9 @@ if args.plot:
         df_week['date'] = df_week.index.strftime("%m/%d")
         df_week.apply(lambda x: ax.text(x.longitude,x.latitude,'  '+x.date, transform=ccrs.PlateCarree()), axis=1)
         df_week.apply(lambda x: ax.plot(x.longitude,x.latitude, 'r^', transform=ccrs.PlateCarree()), axis=1)
+    
+    if "origin" in args.plot:
+        ax.plot(df.iloc[0:1].longitude, df.iloc[0:1].latitude, 'rX', transform=ccrs.PlateCarree())      		
     fig.savefig(plot_file)
 
 if args.file:

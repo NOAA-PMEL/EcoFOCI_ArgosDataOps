@@ -792,7 +792,7 @@ if args.interpolate:
     )
 
 """------------------------ output options----------------------"""
-if args.csv and (not args.version in ["buoy_3hr", "buoy", "met", "sfc_package"]):
+if args.csv and (not args.version in ["beacon","buoy_3hr", "buoy", "met", "sfc_package"]):
     df["longitude"] = df.longitude.apply(lambda x: "%.3f" % x)
     df["latitude"] = df.latitude.apply(lambda x: "%.3f" % x)
     df["sst"] = df.sst.apply(lambda x: "%.2f" % x)
