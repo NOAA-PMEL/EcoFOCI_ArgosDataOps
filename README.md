@@ -37,6 +37,24 @@ From csv files obtaind via getARGO_SOAP.py there are two pathways:
 
 ***There is no routine that converts raw SOAP data straight to usable output***
 
+
+###Notes About Argos Location Classes
+Taken from the Argos website:  https://www.argos-system.org/support-and-help/faq-localisation-argos/
+
+Description of Location Classes:
+-classes 0, 1, 2, 3 indicate that the location was obtained with 4 messages or more and provides the accuracy estimation,
+-class A indicates that the location was obtained with 3 messages,
+-class B indicates that the location was obtained with 2 messages,
+-class G indicates that the location is a GPS fix obtained by a GPS receiver attached to the platform. The accuracy is better than 100 meters.
+-class Z indicates that the location process failed.
+
+Accurace of Doppler Locations:
+
+-Class 3: better than 250 m radius
+-Class 2: better than 500 m radius
+-Class 1: better than 1500 m radius
+-Class 0: over 1500 m radius
+
 ################
 
 Legal Disclaimer
