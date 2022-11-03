@@ -6,8 +6,8 @@ To retrieve and archive data from the Argo service.  Used primarily for drogued 
 
 ***Written/Tested for:*** 
 
-- python >=3.6 **tested**
-- python 2.7 **tested** but may break in the future
+- python >=3.7 **tested**
+- currently Basemap is deprecated and conversion to cartopy for plots is in progress
 
 ### Example procedures
 
