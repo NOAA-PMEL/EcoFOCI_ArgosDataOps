@@ -71,7 +71,7 @@ import io_utils.EcoFOCI_netCDF_write as EcF_write
 import io_utils.ConfigParserLocal as ConfigParserLocal
 
 from io_utils import ConfigParserLocal
-from plots import ArgosDrifters
+# from plots import ArgosDrifters
 
 """-----------------------------------------------------Data Classes----------------------------------------------------------"""
 
@@ -893,7 +893,9 @@ if args.netcdf:
     pandas2netcdf(df=df, ofile=args.netcdf)
 
 if args.plot:
-    driftermap = ArgosDrifters.ArgosPlot(df=df)
-    # (ax,fig1) = driftermap.make_map(param='doy')
-    (ax, fig1) = driftermap.make_map(param="sst")
-    fig1.savefig(args.sourcefile + ".png")
+    print("deprecated while cartopy is not yet written")
+    pass
+    # driftermap = ArgosDrifters.ArgosPlot(df=df)
+    # # (ax,fig1) = driftermap.make_map(param='doy')
+    # (ax, fig1) = driftermap.make_map(param="sst")
+    # fig1.savefig(args.sourcefile + ".png")
