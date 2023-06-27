@@ -19,6 +19,8 @@
 
  History:
  ========
+ 2023-06-27: New Beacon types where added in 2023, they show up as SUBSURF and MOOR_BUOY, 
+                address these by now splitting on DRIFT or SUBSURF/MOOR_BUOY.
 
  Compatibility:
  ==============
@@ -54,6 +56,9 @@ parser.add_argument('-buoyid', '--buoyid',
 parser.add_argument('-drifteryearfiles', '--drifteryearfiles',
     action="store_true", 
     help='create all drifter year files from activeid listing')
+parser.add_argument('-beaconyearfiles', '--beaconyearfiles',
+    action="store_true", 
+    help='create all beacon year files from platform types "SUBSURF" or "MOOR_BUOY"')
 
 args = parser.parse_args()
 
@@ -87,22 +92,49 @@ if args.buoyyearfiles:
 
 
 if args.drifteryearfiles:
-    gb = df.groupby('platformId')
+    pb = df.groupby('platformType')
 
     keep_columns=['platformId','latitude','longitude','locationDate','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
 
-    for k in gb.groups.keys():
-      if k not in ['28882','28883']:
-        print(k)
-        bd = gb.get_group(k)
-        bd_thinned = bd[keep_columns].copy()
-        bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).year), axis=1)
-        bd_thinned['doy'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).dayofyear), axis=1)
-        bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).hour).zfill(2)+str(pd.to_datetime(row['locationDate']).minute).zfill(2), axis=1)
-        #make special case for 122531, the peggy backup locator buoy
-        if k=='122531':
-          out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['locationClass']
-          bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
-        else:
-          out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
-          bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+    for j in pb.groups.keys():
+      if j in ['DRIFT']:
+        print(j)
+        cd = pb.get_group(j)
+
+        gb = cd.groupby('platformId')
+        for k in gb.groups.keys():
+            print(k)
+            bd = gb.get_group(k)
+            bd_thinned = bd[keep_columns].copy()
+            bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).year), axis=1)
+            bd_thinned['doy'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).dayofyear), axis=1)
+            bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).hour).zfill(2)+str(pd.to_datetime(row['locationDate']).minute).zfill(2), axis=1)
+            #make special case for 122531, the peggy backup locator buoy
+            if k=='122531':
+                out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['locationClass']
+                bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+            else:
+                out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
+                bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+
+if args.beaconyearfiles:
+    pb = df.groupby('platformType')
+
+    keep_columns=['platformId','latitude','longitude','locationDate','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
+
+    for j in pb.groups.keys():
+      if j in ['MOOR_BUOY', 'SUBSURF']:
+        print(j)
+        cd = pb.get_group(j)
+
+        gb = cd.groupby('platformId')
+        for k in gb.groups.keys():
+            print(k)
+            bd = gb.get_group(k)
+            bd_thinned = bd[keep_columns].copy()
+            bd_thinned['year'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).year), axis=1)
+            bd_thinned['doy'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).dayofyear), axis=1)
+            bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).hour).zfill(2)+str(pd.to_datetime(row['locationDate']).minute).zfill(2), axis=1)
+            out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['locationClass']
+            bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+    
