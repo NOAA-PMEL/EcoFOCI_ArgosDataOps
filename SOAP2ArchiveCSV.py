@@ -62,7 +62,7 @@ parser.add_argument('-beaconyearfiles', '--beaconyearfiles',
 
 args = parser.parse_args()
 
-df = pd.read_csv(args.infile,sep=';',index_col=False,dtype=object,error_bad_lines=False)
+df = pd.read_csv(args.infile,sep=';',index_col=False,dtype=object,on_bad_lines='skip')
 
 if not args.archive_year:
     year = str(datetime.datetime.now().year)
