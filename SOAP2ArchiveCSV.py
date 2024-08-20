@@ -115,7 +115,7 @@ if args.drifteryearfiles:
                 bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
             else:
                 out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
-                bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+                bd_thinned[out_columns].dropna(subset=['latitude','longitude']).to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
 
 if args.beaconyearfiles:
     pb = df.groupby('platformType')
