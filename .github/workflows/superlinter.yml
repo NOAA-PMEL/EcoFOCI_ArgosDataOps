@@ -19,11 +19,11 @@ jobs:
 
       # Runs the Super-Linter action
       - name: Run Super-Linter
-        uses: github/super-linter@v7
+        uses: super-linter/super-linter@v7
         env:
           VALIDATE_YAML: true  
           VALIDATE_MARKDOWN: true
           VALIDATE_PYTHON_ISORT: true
           VALIDATE_PYTHON_PYLINT: true
-          DEFAULT_BRANCH: main
+          DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
