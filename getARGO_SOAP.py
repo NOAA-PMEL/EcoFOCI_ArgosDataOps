@@ -13,7 +13,7 @@ Author: S.Bell
 
 History:
   2018-03-14: Make it so either the program number or platform id can be submitted
-
+  2024-10-30: Remove 'data' directory hard coded into download path
 Note:
     To get an idea of all functions available
     python -mzeep http://ws-argos.clsamerica.com/argosDws/services/DixService?wsdl
@@ -105,10 +105,10 @@ if args.service in ['getKml']:
 
 datestr = startDate.strftime('%Y%m%d%H%M%S')+'_'+endDate.strftime('%Y%m%d%H%M%S')
 if args.idMode in ['programNumber']:
-    with open("data/" + ".".join(['ARGO_'+datestr,filetype]), 'w') as f:
+    with open(".".join(['ARGO_'+datestr,filetype]), 'w') as f:
       f.write(result)
 elif args.idMode in ['platformId']:
-    with open("data/" + ".".join(['ARGO_'+args.idnumber+'_'+datestr,filetype]), 'w') as f:
+    with open(".".join(['ARGO_'+args.idnumber+'_'+datestr,filetype]), 'w') as f:
       f.write(result)
 else:
     print("No file written")  
