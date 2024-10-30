@@ -110,7 +110,7 @@ class ARGOS_SERVICE_Beacon(object):
             header=None,
             names=header,
             index_col=False,
-            error_bad_lines=False,
+            on_bad_lines='warn',
             dtype={
                 "year": str,
                 "doy": str,
@@ -172,7 +172,7 @@ class ARGOS_SERVICE_Drifter(object):
             header=None,
             names=header,
             index_col=False,
-            error_bad_lines=False,
+            on_bad_lines='warn',
             dtype={
                 "year": str,
                 "doy": str,
@@ -320,7 +320,7 @@ class ARGOS_SERVICE_Buoy(object):
             names=header,
             index_col=False,
             usecols=columns,
-            error_bad_lines=False,
+            on_bad_lines='warn',
             dtype=dtype,
             parse_dates=[["year", "doy", "hhmm"]],
             date_parser=argo_to_datetime,
