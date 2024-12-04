@@ -9,7 +9,7 @@ To retrieve and archive data from the Argo service.  Used primarily for drogued 
 - python >=3.8 **tested**
 - currently Basemap is deprecated and conversion to cartopy for plots is in progress
 
-### Example procedures
+## Example procedures
 
 **To obtain all data from program 572 (EcoFOCI) since a specified date**
 
@@ -25,20 +25,20 @@ will output csv data from the 3rd of march for half a day
 
 will output csv data for the entire 24 hours of the last full day (so if you run it at any point on the 5th of March, it will retrieve all of the 4th of March)
 
-### Convert Soap Retrievals to Archive Format
+## Convert Soap Retrievals to Archive Format
 
 From csv files obtaind via getARGO_SOAP.py there are two pathways:
 - clean and archive.  Using SOAP2ArchiveCSV.py you can generate clean csv files for archive and later usage.  No hex conversion has happened at this point, just removal of unnecessary head/column id's and partitioning of data into files based on argo transmitter id.
 - process and convert.  Using ARGOS_service_data_converter.py will allow the various types of datastreams to have their hex information converted into science values.
 
-### Additional Routines
+## Additional Routines
 - ARGOcsv2gpx.py takes the SOAP2ArchiveCSV.py csv files and creates gpx files for GIS software
 - ARGOS_service_data_converter.py -nc will make netcdf files of the SOAP2ArchiveCSV.py - builds yearly csv files (or yearly files like Kachel and Benny's old routine).  This routine appends to existing text by default.
 
 ***There is no routine that converts raw SOAP data straight to usable output***
 
 
-### Notes About Argos Location Classes
+## Notes About Argos Location Classes
 Taken from the Argos website:  [https://www.argos-system.org/support-and-help/faq-localisation-argos/](https://www.argos-system.org/support-and-help/faq-localisation-argos/)
 
 Description of Location Classes:
