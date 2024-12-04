@@ -1,12 +1,12 @@
-## Argo Service data acquistion and processing for EcoFOCI
+# Argo Service data acquistion and processing for EcoFOCI
 
 To retrieve and archive data from the Argo service.  Used primarily for drogued drifters and peggy near-realtime wpak data
 
 ***Note: Currently Plots are Broken as basemap needs to be upgraded to cartopy***
 
-***Written/Tested for:*** 
+***Written/Tested for:***
 
-- python >=3.7 **tested**
+- python >=3.8 **tested**
 - currently Basemap is deprecated and conversion to cartopy for plots is in progress
 
 ### Example procedures
@@ -17,7 +17,7 @@ To retrieve and archive data from the Argo service.  Used primarily for drogued 
 
 will output csv from the 3rd of march for a default length of one day
 
-`python getARGO_SOAP.py getCsv -startDate 2018-03-03T00:00:00 -recordlength 43200 `
+`python getARGO_SOAP.py getCsv -startDate 2018-03-03T00:00:00 -recordlength 43200`
 
 will output csv data from the 3rd of march for half a day
 
@@ -38,8 +38,8 @@ From csv files obtaind via getARGO_SOAP.py there are two pathways:
 ***There is no routine that converts raw SOAP data straight to usable output***
 
 
-###Notes About Argos Location Classes
-Taken from the Argos website:  https://www.argos-system.org/support-and-help/faq-localisation-argos/
+### Notes About Argos Location Classes
+Taken from the Argos website:  [https://www.argos-system.org/support-and-help/faq-localisation-argos/](https://www.argos-system.org/support-and-help/faq-localisation-argos/)
 
 Description of Location Classes:
 -classes 0, 1, 2, 3 indicate that the location was obtained with 4 messages or more and provides the accuracy estimation,
@@ -59,4 +59,9 @@ Accurace of Doppler Locations:
 
 Legal Disclaimer
 
-This repository is a scientific product and is not official communication of the National Oceanic and Atmospheric Administration (NOAA), or the United States Department of Commerce (DOC). All NOAA GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use. Any claims against the DOC or DOC bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation, or favoring by the DOC. The DOC seal and logo, or the seal and logo of a DOC bureau, shall not be used in any manner to imply endorsement of any commercial product or activity by the DOC or the United States Government.
+This repository is a scientific product and is not official communication of the National Oceanic and Atmospheric Administration (NOAA),
+or the United States Department of Commerce (DOC). All NOAA GitHub project code is provided on an 'as is' basis and the user assumes responsibility for its use.
+Any claims against the DOC or DOC bureaus stemming from the use of this GitHub project will be governed by all applicable Federal law.
+Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise,
+does not constitute or imply their endorsement, recommendation, or favoring by the DOC. The DOC seal and logo, or the seal and logo of a DOC bureau,
+shall not be used in any manner to imply endorsement of any commercial product or activity by the DOC or the United States Government.
