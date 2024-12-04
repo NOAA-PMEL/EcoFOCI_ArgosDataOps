@@ -106,7 +106,7 @@ class ARGOS_SERVICE_Beacon(object):
         ]
         df = pd.read_csv(
             fobj,
-            delimiter="\s+",
+            delimiter=r"\s+",
             header=None,
             names=header,
             index_col=False,
@@ -168,7 +168,7 @@ class ARGOS_SERVICE_Drifter(object):
         ]
         df = pd.read_csv(
             fobj,
-            delimiter="\s+",
+            delimiter=r"\s+",
             header=None,
             names=header,
             index_col=False,
@@ -315,7 +315,7 @@ class ARGOS_SERVICE_Buoy(object):
 
         df = pd.read_csv(
             fobj,
-            delimiter="\s+",
+            delimiter=r"\s+",
             header=None,
             names=header,
             index_col=False,
