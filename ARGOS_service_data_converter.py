@@ -51,11 +51,11 @@ and for a drifter
  2018-03-13: Ingest two starter characters that represent time (hour and minute) 
     and output seconds since midnight.
  2018-03-12: Add netcdf output option
-
+ 2024-12-04: Modify pandas date_parse to be pandas 2.X compliant
+ 
  Compatibility:
  ==============
- python >=3.6 **tested**
- python 2.7 **tested** but may break in the future
+ python >=3.9 **tested**
 
 """
 import argparse
@@ -90,7 +90,6 @@ class ARGOS_SERVICE_Beacon(object):
         Basic Method to open files.  Specific actions can be passes as kwargs for instruments
 
         """
-        argo_to_datetime = lambda date: datetime.datetime.strptime(date, "%Y %j %H%M")
 
         header = [
             "argosid",
@@ -120,10 +119,10 @@ class ARGOS_SERVICE_Beacon(object):
                 "s3": str,
                 "s4": str,
             },
-            parse_dates=[["year", "doy", "hhmm"]],
-            date_parser=argo_to_datetime,
         )
 
+        df["year_doy_hhmm"] = pd.to_datetime(arg=df.pop("year").str.cat(df.pop("doy")).str.cat(df.pop("hhmm")),
+                                             format="%Y%j%H%M")
         df["longitude"] = df["longitude"] * -1  # convert to +W
         df["longitude"] = df.longitude.round(3)
         df["latitude"] = df.latitude.round(3)
@@ -148,7 +147,6 @@ class ARGOS_SERVICE_Drifter(object):
         Basic Method to open files.  Specific actions can be passes as kwargs for instruments
 
         """
-        argo_to_datetime = lambda date: datetime.datetime.strptime(date, "%Y %j %H%M")
 
         header = [
             "argosid",
@@ -186,10 +184,10 @@ class ARGOS_SERVICE_Drifter(object):
                 "s7": str,
                 "s8": str,
             },
-            parse_dates=[["year", "doy", "hhmm"]],
-            date_parser=argo_to_datetime,
         )
 
+        df["year_doy_hhmm"] = pd.to_datetime(arg=df.pop("year").str.cat(df.pop("doy")).str.cat(df.pop("hhmm")),
+                                             format="%Y%j%H%M")
         df["longitude"] = df["longitude"] * -1  # convert to +W
         df["longitude"] = df.longitude.round(3)
         df["latitude"] = df.latitude.round(3)
@@ -266,7 +264,6 @@ class ARGOS_SERVICE_Buoy(object):
         
         Date,AT,RH,WS,WD,BP,QS,AZ,BV
         """
-        argo_to_datetime = lambda date: datetime.datetime.strptime(date, "%Y %j %H%M")
 
         header = [
             "argosid",
@@ -322,14 +319,13 @@ class ARGOS_SERVICE_Buoy(object):
             usecols=columns,
             on_bad_lines='warn',
             dtype=dtype,
-            parse_dates=[["year", "doy", "hhmm"]],
-            date_parser=argo_to_datetime,
         )
 
+        df["year_doy_hhmm"] = pd.to_datetime(arg=df.pop("year").str.cat(df.pop("doy")).str.cat(df.pop("hhmm")),
+                                             format="%Y%j%H%M")
         df["longitude"] = df["longitude"] * -1  # convert to +W
 
         df.set_index(pd.DatetimeIndex(df["year_doy_hhmm"]), inplace=True)
-        # df.drop('year_doy_hhmm',axis=1,inplace=True)
 
         return df
 
