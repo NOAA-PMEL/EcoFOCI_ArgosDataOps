@@ -120,6 +120,9 @@ class ARGOS_SERVICE_Beacon(object):
                 "s4": str,
             },
         )
+        #pad hhmm and doy with 0's
+        df["doy"] = df["doy"].str.zfill(3)
+        df["hhmm"] = df["hhmm"].str.zfill(4)
 
         df["year_doy_hhmm"] = pd.to_datetime(arg=df.pop("year").str.cat(df.pop("doy")).str.cat(df.pop("hhmm")),
                                              format="%Y%j%H%M")
@@ -185,6 +188,9 @@ class ARGOS_SERVICE_Drifter(object):
                 "s8": str,
             },
         )
+        #pad hhmm and doy with 0's
+        df["doy"] = df["doy"].str.zfill(3)
+        df["hhmm"] = df["hhmm"].str.zfill(4)
 
         df["year_doy_hhmm"] = pd.to_datetime(arg=df.pop("year").str.cat(df.pop("doy")).str.cat(df.pop("hhmm")),
                                              format="%Y%j%H%M")
@@ -320,6 +326,9 @@ class ARGOS_SERVICE_Buoy(object):
             on_bad_lines='warn',
             dtype=dtype,
         )
+        #pad hhmm and doy with 0's
+        df["doy"] = df["doy"].str.zfill(3)
+        df["hhmm"] = df["hhmm"].str.zfill(4)
 
         df["year_doy_hhmm"] = pd.to_datetime(arg=df.pop("year").str.cat(df.pop("doy")).str.cat(df.pop("hhmm")),
                                              format="%Y%j%H%M")
