@@ -86,7 +86,7 @@ if args.buoyyearfiles:
       bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['bestDate']).hour).zfill(2)+str(pd.to_datetime(row['bestDate']).minute).zfill(2), axis=1)
 
       out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,32)] + ['locationClass']
-      bd_thinned[out_columns].to_csv('0'+args.buoyid+'.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+      bd_thinned[out_columns].to_csv('0'+args.buoyid+'.y' + year,sep=' ',header=False,index=False,na_rep=np.nan,mode='a')
     except:
       print("no 28882 data in this file")
 
@@ -112,10 +112,10 @@ if args.drifteryearfiles:
             #make special case for 122531, the peggy backup locator buoy
             if k=='122531':
                 out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['locationClass']
-                bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+                bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,sep=' ',header=False,index=False,na_rep=np.nan,mode='a')
             else:
                 out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['value.'+str(i) for i in range(1,7)] + ['locationClass']
-                bd_thinned[out_columns].dropna(subset=['latitude','longitude']).to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+                bd_thinned[out_columns].dropna(subset=['latitude','longitude']).to_csv(k + '.y' + year,sep=' ',header=False,index=False,na_rep=np.nan,mode='a')
 
 if args.beaconyearfiles:
     pb = df.groupby('platformType')
@@ -136,5 +136,5 @@ if args.beaconyearfiles:
             bd_thinned['doy'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).dayofyear), axis=1)
             bd_thinned['hhmm'] = bd_thinned.apply(lambda row: str(pd.to_datetime(row['locationDate']).hour).zfill(2)+str(pd.to_datetime(row['locationDate']).minute).zfill(2), axis=1)
             out_columns=['platformId','latitude','longitude','year','doy','hhmm','value'] + ['locationClass']
-            bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,' ',header=False,index=False,na_rep=np.nan,mode='a')
+            bd_thinned[out_columns].dropna().to_csv(k + '.y' + year,sep=' ',header=False,index=False,na_rep=np.nan,mode='a')
     
