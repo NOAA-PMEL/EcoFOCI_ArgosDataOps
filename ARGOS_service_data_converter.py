@@ -71,7 +71,6 @@ import io_utils.EcoFOCI_netCDF_write as EcF_write
 import io_utils.ConfigParserLocal as ConfigParserLocal
 
 from io_utils import ConfigParserLocal
-# from plots import ArgosDrifters
 
 """-----------------------------------------------------Data Classes----------------------------------------------------------"""
 
@@ -503,7 +502,7 @@ parser.add_argument(
 )
 parser.add_argument("-nc", "--netcdf", type=str, help="output as netcdf - full path")
 parser.add_argument("-config", "--config", type=str, help="read local config file")
-parser.add_argument("-plot", "--plot", action="store_true", help="plot data")
+
 parser.add_argument(
     "-interpolate",
     "--interpolate",
@@ -897,10 +896,3 @@ if args.geojson:
 if args.netcdf:
     pandas2netcdf(df=df, ofile=args.netcdf)
 
-if args.plot:
-    print("deprecated while cartopy is not yet written")
-    pass
-    # driftermap = ArgosDrifters.ArgosPlot(df=df)
-    # # (ax,fig1) = driftermap.make_map(param='doy')
-    # (ax, fig1) = driftermap.make_map(param="sst")
-    # fig1.savefig(args.sourcefile + ".png")
