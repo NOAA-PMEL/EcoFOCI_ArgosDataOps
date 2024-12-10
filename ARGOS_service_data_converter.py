@@ -483,7 +483,7 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
             #xarray casting issue?
             for var in xdf.variables:
                 if xdf[var].dtype == 'float64':
-                    xdf[var] = xdf[var].astype('float32')
+                    xdf[var] = xdf[var].astype('float')
 
             #global attributes
             xdf.attrs["CREATION_DATE"] = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
@@ -499,7 +499,7 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
             xdf.attrs['History']="File Created from ARGSOS Drifter Data."
 
             xdf.to_netcdf(ofile,
-                        format='NETCDF4',
+                        format='NETCDF3_CLASSIC',
                         encoding={'time':{'units':'days since 1900-01-01'}})
         else:
             df["time"] = [
