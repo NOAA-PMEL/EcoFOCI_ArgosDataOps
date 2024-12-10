@@ -479,6 +479,11 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
                             pass
                     else:
                         pass
+            
+            #xarray casting issue?
+            for var in xdf.variables:
+                if xdf[var].dtype == 'float64':
+                    xdf[var] = xdf[var].astype('float32')
 
             #global attributes
             xdf.attrs["CREATION_DATE"] = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
