@@ -465,11 +465,6 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
             df.index = df.reset_index().index.rename('record_number')
             xdf = df.rename(columns={'year_doy_hhmm':'time'}).to_xarray()           
 
-            try:
-                df['checksum'] = df['checksum'].astype("bool")
-            except:
-                pass
-
             #rename variables and add attributes
             drop_missing = True
 
@@ -602,7 +597,7 @@ elif args.version in ["v1", "V1", "version1", "v1-metocean"]:
     df.drop(df.index[~df["checksum"]], inplace=True)
     df.drop_duplicates(subset="year_doy_hhmm", keep="last", inplace=True)
 
-    df.drop(["year_doy_hhmm","s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
+    df.drop(["checksum","year_doy_hhmm","s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
 
 elif args.version in ["v2", "V2", "version2", "v2-vendor(2017)"]:
 
@@ -630,7 +625,7 @@ elif args.version in ["v2", "V2", "version2", "v2-vendor(2017)"]:
     df.drop_duplicates(
         subset=["year_doy_hhmm", "latitude", "longitude"], keep="last", inplace=True
     )
-    df.drop(["year_doy_hhmm","s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
+    df.drop(["checksum","year_doy_hhmm","s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
 
 elif args.version in ["buoy", "met", "sfc_package"]:
 
