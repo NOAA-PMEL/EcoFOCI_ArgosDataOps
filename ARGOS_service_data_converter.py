@@ -465,6 +465,11 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
             df.index = df.reset_index().index.rename('record_number')
             xdf = df.rename(columns={'year_doy_hhmm':'time'}).to_xarray()           
 
+            try:
+                df['checksum'] = df['checksum'].astype(bool)
+            except:
+                pass
+            
             #rename variables and add attributes
             drop_missing = True
 
@@ -495,7 +500,7 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
 
             xdf.to_netcdf(ofile,
                         format='NETCDF3_CLASSIC',
-                        encoding={'time':{'units':'days since 1900-01-01'},'checksum':{"dtype":"bool"}})
+                        encoding={'time':{'units':'days since 1900-01-01'}})
         else:
             df["time"] = [
                 date2num(x[1], "hours since 1900-01-01T00:00:00Z")
