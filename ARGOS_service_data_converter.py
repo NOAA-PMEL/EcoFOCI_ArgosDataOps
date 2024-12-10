@@ -484,7 +484,7 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
             xdf.attrs["CREATION_DATE"] = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
             xdf.attrs["INST_TYPE"] = ''
             xdf.attrs["DATA_CMNT"] = ''
-            xdf.attrs["NC_FILE_GENERATOR"] = __file__.split('/')[-1] + ' ' + __version__ 
+            xdf.attrs["NC_FILE_GENERATOR"] = 'Generated with Xarray' 
             xdf.attrs["WATER_DEPTH"] = ''
             xdf.attrs["MOORING"] = ''
             xdf.attrs["WATER_MASS"] = ''
