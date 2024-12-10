@@ -479,11 +479,6 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
                             pass
                     else:
                         pass
-            
-            #xarray casting issue?
-            for var in xdf.variables:
-                if xdf[var].dtype == 'float64':
-                    xdf[var] = xdf[var].astype('int')
 
             #global attributes
             xdf.attrs["CREATION_DATE"] = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
@@ -500,7 +495,7 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
 
             xdf.to_netcdf(ofile,
                         format='NETCDF3_CLASSIC',
-                        encoding={'time':{'units':'days since 1900-01-01'}})
+                        encoding={'time':{'units':'days since 1900-01-01'},'latitude':{'dtype':'float'}})
         else:
             df["time"] = [
                 date2num(x[1], "hours since 1900-01-01T00:00:00Z")
