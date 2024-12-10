@@ -494,7 +494,7 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
             xdf.attrs['History']="File Created from ARGSOS Drifter Data."
 
             xdf.to_netcdf(ofile,
-                        format='NETCDF3_CLASSIC',
+                        format='NETCDF4',
                         encoding={'time':{'units':'days since 1900-01-01'}})
         else:
             df["time"] = [
