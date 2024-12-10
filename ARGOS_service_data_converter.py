@@ -446,7 +446,7 @@ class ARGOS_SERVICE_Buoy(object):
         return output
 
 
-def pandas2netcdf(df=None, ofile="data.nc":
+def pandas2netcdf(df=None, ofile="data.nc"):
 
     if df.empty:
         return
