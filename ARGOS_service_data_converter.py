@@ -465,6 +465,19 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
             df.index = df.reset_index().index.rename('record_number')
             xdf = df.rename(columns={'year_doy_hhmm':'time'}).to_xarray()           
 
+            #global attributes
+            xdf.attrs["CREATION_DATE"] = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
+            xdf.attrs["INST_TYPE"] = ''
+            xdf.attrs["DATA_CMNT"] = ''
+            xdf.attrs["NC_FILE_GENERATOR"] = 'Generated with Xarray' 
+            xdf.attrs["WATER_DEPTH"] = ''
+            xdf.attrs["MOORING"] = ''
+            xdf.attrs["WATER_MASS"] = ''
+            xdf.attrs["EXPERIMENT"] = ''
+            xdf.attrs["PROJECT"] = ''
+            xdf.attrs["SERIAL_NUMBER"] = ''
+            xdf.attrs['History']="File Created from ARGSOS Drifter Data."
+
             #rename variables and add attributes
             drop_missing = True
 
@@ -479,21 +492,8 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
                             pass
                     else:
                         pass
-
-            #global attributes
-            xdf.attrs["CREATION_DATE"] = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
-            xdf.attrs["INST_TYPE"] = ''
-            xdf.attrs["DATA_CMNT"] = ''
-            xdf.attrs["NC_FILE_GENERATOR"] = 'Generated with Xarray' 
-            xdf.attrs["WATER_DEPTH"] = ''
-            xdf.attrs["MOORING"] = ''
-            xdf.attrs["WATER_MASS"] = ''
-            xdf.attrs["EXPERIMENT"] = ''
-            xdf.attrs["PROJECT"] = ''
-            xdf.attrs["SERIAL_NUMBER"] = ''
-            xdf.attrs['History']="File Created from ARGSOS Drifter Data."
-
-            xdf.to_netcdf(ofile,
+            try: #others        
+                xdf.to_netcdf(ofile,
                         format='NETCDF3_CLASSIC',
                         encoding={'time':{'units':'days since 1900-01-01'},
                                   'latitude':{'dtype':'float'},
@@ -501,6 +501,12 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
                                   'strain':{'dtype':'float'},
                                   'voltage':{'dtype':'float'},
                                   'sst':{'dtype':'float'}})
+            except: #beacon file  
+                xdf.to_netcdf(ofile,
+                        format='NETCDF3_CLASSIC',
+                        encoding={'time':{'units':'days since 1900-01-01'},
+                                  'latitude':{'dtype':'float'},
+                                  'longitude':{'dtype':'float'}})
         else:
             df["time"] = [
                 date2num(x[1], "days since 1900-01-01T00:00:00Z")
