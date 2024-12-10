@@ -10,27 +10,32 @@ latitude:
   generic_name: latitude
   units: degrees_north
   longname: 'latitude'
+  dtype: float
 longitude:
   name: longitude
   generic_name: longitude
   units: degrees_west
   longname: 'longitude'
+  dtype: float
 sst:
   name: sea surface temperature
   generic_name: sst
   units: degree_C
   longname: 'sea surface temperature (degree_C)'
   standard_name: 'sea_surface_temperature'
+  dtype: float
 strain:
   name: strain
   generic_name: strain
   units: percent
   longname: 'strain gauge percent'
+  dtype: float
 voltage:
   name: voltage
   generic_name: voltage
   longname: 'battery voltage'
   units: volts 
+  dtype: float
 location_quality:
   name: location_quality
   generic_name: location_quality
