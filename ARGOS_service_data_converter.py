@@ -67,11 +67,6 @@ import xarray as xa
 from datetime import datetime, timezone
 from netCDF4 import date2num, num2date
 
-
-# User Stack
-import io_utils.EcoFOCI_netCDF_write as EcF_write
-import io_utils.ConfigParserLocal as ConfigParserLocal
-
 from io_utils import ConfigParserLocal
 
 """-----------------------------------------------------Data Classes----------------------------------------------------------"""
@@ -451,86 +446,62 @@ class ARGOS_SERVICE_Buoy(object):
         return output
 
 
-def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
+def pandas2netcdf(df=None, ofile="data.nc":
 
     if df.empty:
         return
-    else:
-        if isxa:
-            EPIC_VARS_yaml = ConfigParserLocal.get_config(
-                "config_files/drifters.yaml", "yaml"
-            )
 
-            df = df.reset_index()
-            df.index = df.reset_index().index.rename('record_number')
-            xdf = df.rename(columns={'year_doy_hhmm':'time'}).to_xarray()           
+    EPIC_VARS_yaml = ConfigParserLocal.get_config(
+        "config_files/drifters.yaml", "yaml"
+    )
 
-            #global attributes
-            xdf.attrs["CREATION_DATE"] = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
-            xdf.attrs["INST_TYPE"] = ''
-            xdf.attrs["DATA_CMNT"] = ''
-            xdf.attrs["NC_FILE_GENERATOR"] = 'Generated with Xarray' 
-            xdf.attrs["WATER_DEPTH"] = ''
-            xdf.attrs["MOORING"] = ''
-            xdf.attrs["WATER_MASS"] = ''
-            xdf.attrs["EXPERIMENT"] = ''
-            xdf.attrs["PROJECT"] = ''
-            xdf.attrs["SERIAL_NUMBER"] = ''
-            xdf.attrs['History']="File Created from ARGSOS Drifter Data."
+    df = df.reset_index()
+    df.index = df.reset_index().index.rename('record_number')
+    xdf = df.rename(columns={'year_doy_hhmm':'time'}).to_xarray()           
 
-            #rename variables and add attributes
-            drop_missing = True
+    #global attributes
+    xdf.attrs["CREATION_DATE"] = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
+    xdf.attrs["INST_TYPE"] = ''
+    xdf.attrs["DATA_CMNT"] = ''
+    xdf.attrs["NC_FILE_GENERATOR"] = 'Generated with Xarray' 
+    xdf.attrs["WATER_DEPTH"] = ''
+    xdf.attrs["MOORING"] = ''
+    xdf.attrs["WATER_MASS"] = ''
+    xdf.attrs["EXPERIMENT"] = ''
+    xdf.attrs["PROJECT"] = ''
+    xdf.attrs["SERIAL_NUMBER"] = ''
+    xdf.attrs['History']="File Created from ARGSOS Drifter Data."
 
-            for var in EPIC_VARS_yaml.keys():
+    #rename variables and add attributes
+    drop_missing = True
+
+    for var in EPIC_VARS_yaml.keys():
+        try:
+            xdf[var].attrs = EPIC_VARS_yaml[var]
+        except (ValueError, KeyError):
+            if drop_missing:
                 try:
-                    xdf[var].attrs = EPIC_VARS_yaml[var]
+                    xdf = xdf.drop_vars(var)
                 except (ValueError, KeyError):
-                    if drop_missing:
-                        try:
-                            xdf = xdf.drop_vars(var)
-                        except (ValueError, KeyError):
-                            pass
-                    else:
-                        pass
-            try: #others        
-                xdf.to_netcdf(ofile,
-                        format='NETCDF3_CLASSIC',
-                        encoding={'time':{'units':'days since 1900-01-01'},
-                                  'latitude':{'dtype':'float'},
-                                  'longitude':{'dtype':'float'},
-                                  'strain':{'dtype':'float'},
-                                  'voltage':{'dtype':'float'},
-                                  'sst':{'dtype':'float'}})
-            except: #beacon file  
-                xdf.to_netcdf(ofile,
-                        format='NETCDF3_CLASSIC',
-                        encoding={'time':{'units':'days since 1900-01-01'},
-                                  'latitude':{'dtype':'float'},
-                                  'longitude':{'dtype':'float'}})
-        else:
-            df["time"] = [
-                date2num(x[1], "days since 1900-01-01T00:00:00Z")
-                for x in enumerate(df.index)
-            ]
-
-            EPIC_VARS_dict = ConfigParserLocal.get_config(
-                "config_files/drifters.yaml", "yaml"
-            )
-
-            # create new netcdf file
-            ncinstance = EcF_write.NetCDF_Create_Profile_Ragged1D(savefile=ofile)
-            ncinstance.file_create()
-            ncinstance.sbeglobal_atts(
-                raw_data_file="", History="File Created from ARGSOS Drifter Data."
-            )
-            ncinstance.dimension_init(recnum_len=len(df))
-            ncinstance.variable_init(EPIC_VARS_dict)
-            ncinstance.add_coord_data(recnum=range(1, len(df) + 1))
-            ncinstance.add_data(
-                EPIC_VARS_dict, data_dic=df, missing_values=np.nan, pandas=True
-            )
-            ncinstance.close()
-
+                    pass
+            else:
+                pass
+    try: #others        
+        xdf.to_netcdf(ofile,
+                format='NETCDF3_CLASSIC',
+                encoding={'time':{'units':'days since 1900-01-01'},
+                            'latitude':{'dtype':'float'},
+                            'longitude':{'dtype':'float'},
+                            'strain':{'dtype':'float'},
+                            'voltage':{'dtype':'float'},
+                            'sst':{'dtype':'float'}})
+    except: #beacon file  
+        xdf.to_netcdf(ofile,
+                format='NETCDF3_CLASSIC',
+                encoding={'time':{'units':'days since 1900-01-01'},
+                            'latitude':{'dtype':'float'},
+                            'longitude':{'dtype':'float'}})
+        
 
 """--------------------- Main ----------------------------------------------"""
 
