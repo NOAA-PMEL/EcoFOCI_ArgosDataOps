@@ -1,10 +1,10 @@
 ---
-time:
-  name: time
-  generic_name: time
-  longname: date and time since reference time
-  time_origin: '1900-01-01 00:00:00'
-  units: 'hours since 1900-01-01T00:00:00Z'
+# time:
+#   name: time
+#   generic_name: time
+#   longname: date and time since reference time
+#   time_origin: '1900-01-01 00:00:00'
+#   units: 'hours since 1900-01-01T00:00:00Z'
 latitude:
   name: latitude
   generic_name: latitude
