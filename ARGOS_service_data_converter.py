@@ -466,10 +466,10 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
             xdf = df.rename(columns={'year_doy_hhmm':'time'}).to_xarray()           
 
             try:
-                df['checksum'] = df['checksum'].astype(bool)
+                df['checksum'] = df['checksum'].astype("bool")
             except:
                 pass
-            
+
             #rename variables and add attributes
             drop_missing = True
 
