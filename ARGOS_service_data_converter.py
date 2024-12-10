@@ -503,7 +503,7 @@ def pandas2netcdf(df=None, ofile="data.nc",isxa=True):
                                   'sst':{'dtype':'float'}})
         else:
             df["time"] = [
-                date2num(x[1], "hours since 1900-01-01T00:00:00Z")
+                date2num(x[1], "days since 1900-01-01T00:00:00Z")
                 for x in enumerate(df.index)
             ]
 
