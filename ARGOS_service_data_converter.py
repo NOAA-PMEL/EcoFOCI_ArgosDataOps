@@ -52,23 +52,20 @@ and for a drifter
     and output seconds since midnight.
  2018-03-12: Add netcdf output option
  2024-12-04: Modify pandas date_parse to be pandas 2.X compliant
- 
+ 2024-12-09: Swap Xarray for lowerlevel NetCDF creation
+
  Compatibility:
  ==============
  python >=3.9 **tested**
 
 """
 import argparse
-import datetime
 import sys
 import pandas as pd
 import numpy as np
+import xarray as xa
+from datetime import datetime, timezone
 from netCDF4 import date2num, num2date
-
-
-# User Stack
-import io_utils.EcoFOCI_netCDF_write as EcF_write
-import io_utils.ConfigParserLocal as ConfigParserLocal
 
 from io_utils import ConfigParserLocal
 
@@ -133,7 +130,6 @@ class ARGOS_SERVICE_Beacon(object):
         # df.drop('year_doy_hhmm',axis=1,inplace=True)
 
         return df
-
 
 class ARGOS_SERVICE_Drifter(object):
     r"""
@@ -334,6 +330,7 @@ class ARGOS_SERVICE_Buoy(object):
         df["longitude"] = df["longitude"] * -1  # convert to +W
 
         df.set_index(pd.DatetimeIndex(df["year_doy_hhmm"]), inplace=True)
+        # df.drop('year_doy_hhmm',axis=1,inplace=True)
 
         return df
 
@@ -453,30 +450,58 @@ def pandas2netcdf(df=None, ofile="data.nc"):
 
     if df.empty:
         return
-    else:
-        df["time"] = [
-            date2num(x[1], "hours since 1900-01-01T00:00:00Z")
-            for x in enumerate(df.index)
-        ]
 
-        EPIC_VARS_dict = ConfigParserLocal.get_config(
-            "config_files/drifters.yaml", "yaml"
-        )
+    EPIC_VARS_yaml = ConfigParserLocal.get_config(
+        "config_files/drifters.yaml", "yaml"
+    )
 
-        # create new netcdf file
-        ncinstance = EcF_write.NetCDF_Create_Profile_Ragged1D(savefile=ofile)
-        ncinstance.file_create()
-        ncinstance.sbeglobal_atts(
-            raw_data_file="", History="File Created from ARGSOS Drifter Data."
-        )
-        ncinstance.dimension_init(recnum_len=len(df))
-        ncinstance.variable_init(EPIC_VARS_dict)
-        ncinstance.add_coord_data(recnum=range(1, len(df) + 1))
-        ncinstance.add_data(
-            EPIC_VARS_dict, data_dic=df, missing_values=np.nan, pandas=True
-        )
-        ncinstance.close()
+    df = df.reset_index()
+    df.index = df.reset_index().index.rename('record_number')
+    xdf = df.rename(columns={'year_doy_hhmm':'time'}).to_xarray()           
 
+    #global attributes
+    xdf.attrs["CREATION_DATE"] = datetime.now(timezone.utc).strftime("%B %d, %Y %H:%M UTC")
+    xdf.attrs["INST_TYPE"] = ''
+    xdf.attrs["DATA_CMNT"] = ''
+    xdf.attrs["NC_FILE_GENERATOR"] = 'Generated with Xarray' 
+    xdf.attrs["WATER_DEPTH"] = ''
+    xdf.attrs["MOORING"] = ''
+    xdf.attrs["WATER_MASS"] = ''
+    xdf.attrs["EXPERIMENT"] = ''
+    xdf.attrs["PROJECT"] = ''
+    xdf.attrs["SERIAL_NUMBER"] = ''
+    xdf.attrs['History']="File Created from ARGSOS Drifter Data."
+
+    #rename variables and add attributes
+    drop_missing = True
+
+    for var in EPIC_VARS_yaml.keys():
+        try:
+            xdf[var].attrs = EPIC_VARS_yaml[var]
+        except (ValueError, KeyError):
+            if drop_missing:
+                try:
+                    xdf = xdf.drop_vars(var)
+                except (ValueError, KeyError):
+                    pass
+            else:
+                pass
+    try: #others        
+        xdf.to_netcdf(ofile,
+                format='NETCDF3_CLASSIC',
+                encoding={'time':{'units':'days since 1900-01-01'},
+                            'latitude':{'dtype':'float'},
+                            'longitude':{'dtype':'float'},
+                            'strain':{'dtype':'float'},
+                            'voltage':{'dtype':'float'},
+                            'sst':{'dtype':'float'}})
+    except: #beacon file  
+        xdf.to_netcdf(ofile,
+                format='NETCDF3_CLASSIC',
+                encoding={'time':{'units':'days since 1900-01-01'},
+                            'latitude':{'dtype':'float'},
+                            'longitude':{'dtype':'float'}})
+        
 
 """--------------------- Main ----------------------------------------------"""
 
@@ -494,7 +519,7 @@ parser.add_argument(
     "version",
     metavar="version",
     type=str,
-    help="beacon,buoy,buoy_3hr,v1-metocean(pre-2017),v2-vendor(2017)",
+    help="beacon,buoy,buoy_3hr,v1-(pre-2017),v2-(post-2017)",
 )
 parser.add_argument("-csv", "--csv", type=str, help="output as csv - full path")
 parser.add_argument(
@@ -525,9 +550,12 @@ if args.version in ["beacon"]:
 
     df = atseadata.get_data(args.sourcefile)
 
+    df["location_quality"] = df["s2"]
+
     df.drop_duplicates(
         subset=["year_doy_hhmm", "latitude", "longitude"], keep="last", inplace=True
     )
+    df.drop(['year_doy_hhmm',"s1", "s2", "s3", "s4"], axis=1, inplace=True)
 
 elif args.version in ["v1", "V1", "version1", "v1-metocean"]:
     atseadata = ARGOS_SERVICE_Drifter()
@@ -548,11 +576,10 @@ elif args.version in ["v1", "V1", "version1", "v1-metocean"]:
     df["location_quality"] = df["s8"]
     df["location_quality"] = pd.to_numeric(df["location_quality"], errors="coerce")
 
-    df.drop(["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
-
     df.drop(df.index[~df["checksum"]], inplace=True)
     df.drop_duplicates(subset="year_doy_hhmm", keep="last", inplace=True)
 
+    df.drop(["checksum","year_doy_hhmm","s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
 
 elif args.version in ["v2", "V2", "version2", "v2-vendor(2017)"]:
 
@@ -572,8 +599,6 @@ elif args.version in ["v2", "V2", "version2", "v2-vendor(2017)"]:
     df["location_quality"] = df["s8"]
     df["location_quality"] = pd.to_numeric(df["location_quality"], errors="coerce")
 
-    df.drop(["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
-
     try:
         df.drop(df.index[~df["checksum"]], inplace=True)
     except TypeError:
@@ -582,6 +607,7 @@ elif args.version in ["v2", "V2", "version2", "v2-vendor(2017)"]:
     df.drop_duplicates(
         subset=["year_doy_hhmm", "latitude", "longitude"], keep="last", inplace=True
     )
+    df.drop(["checksum","year_doy_hhmm","s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"], axis=1, inplace=True)
 
 elif args.version in ["buoy", "met", "sfc_package"]:
 
