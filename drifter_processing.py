@@ -172,8 +172,10 @@ def trim_data(df, delta_t):
     if len(delta_t) == 0:
         try:
             print("Trying to set start time from database .....")
-            drifter_db = mysql.connector.connect(user='viewer', host='127.0.0.1', 
-                                         database='ecofoci_drifters')
+            #drifter_db = mysql.connector.connect(user='viewer', host='127.0.0.1', 
+            #                            database='ecofoci_drifters')
+            drifter_db = mysql.connector.MySQLConnection(user='viewer', host='127.0.0.1', 
+                                       database='ecofoci_drifters')
             cursor = drifter_db.cursor()
             argos_id = str(df.trajectory_id[0])
             query_string = "select releasedate from drifter_ids where argosnumber=" + argos_id        
@@ -386,6 +388,9 @@ if args.erddap:
     df = pd.concat(df_years.values())
     #get rid of timezone info
     df = df.tz_localize(None)
+    #add the following to make sure the data is sorted to allow 
+    #proper slicing
+    df = df.sort_index()
     # # names = ['trajectory_id','strain','voltage','datetime','latitude','sst','longitude']
     # # df=pd.read_csv(filename, skiprows=1, header=0, names=names, parse_dates=[3])
     # # #df['longitude'] = df.longitude - 360
