@@ -19,6 +19,7 @@ import numpy as np
 import re
 from erddapy import ERDDAP
 import mysql.connector
+import cartopy.feature as cfeature
 
 
 
@@ -129,8 +130,8 @@ def plot_variable(dfin, var, filename, zoom=False):
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1, projection=proj)
     #ax = plt.axes(projection=proj)
-    ax.natural_earth_shp(name='land', resolution='50m' )
-    ax.coastlines(resolution='50m')
+    ax.add_feature(cfeature.LAND.with_scale('50m'))
+    ax.add_feature(cfeature.COASTLINE.with_scale('50m'))
     if var == 'speed' :
         vmin, vmax, cmap = 0, 120, cmocean.cm.speed
     elif var == 'sst':
@@ -358,7 +359,7 @@ if args.erddap:
     drifter_years = args.erddap[1:]
     argos_id = args.erddap[0]
     e = ERDDAP( 
-    server = 'http://ecofoci-field.pmel.noaa.gov:8080/erddap',
+    server = 'http://ecofoci-field.pmel.noaa.gov:8082/erddap',
     protocol = 'tabledap',)
 
     e.response = 'csv'
@@ -400,7 +401,7 @@ elif args.legacy:
              'voltage', 'sst', 'quality']
     dtypes = {'year':str, 'day':str, 'time':str}
     dateparser = lambda x: pd.datetime.strptime(x, "%Y %j %H%M")
-    df=pd.read_csv(filename, sep='\s+', skiprows=28, header=0, names=names,
+    df=pd.read_csv(filename, sep=r'\s+', skiprows=28, header=0, names=names,
                    dtype=dtypes, parse_dates={'datetime':[2,3,4]},
                    date_parser=dateparser)
     #to make W longitude negative and E positive
@@ -413,7 +414,7 @@ elif args.vecdis:
     names = ['year','day','time','latitude','longitude', 'speed', 'direction', 'U', 'V']
     dtypes = {'year':str, 'day':str, 'time':str}
     dateparser = lambda x: pd.datetime.strptime(x, "%Y%j%H%M")
-    df=pd.read_csv(filename, sep='\s+', skiprows=2, header=0, names=names,
+    df=pd.read_csv(filename, sep=r'\s+', skiprows=2, header=0, names=names,
                    dtype=dtypes)
     #to make W longitude negative and E positive
     df['time'] = df.time.str.zfill(4)
