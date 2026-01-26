@@ -1,7 +1,7 @@
 #python>=3.7
 matplotlib==3.10.8
 numpy==2.4.1
-pandas==2.3.3
+pandas==3.0.0
 pyyaml==6.0.3
 netcdf4==1.7.4
 zeep==4.3.2
