@@ -3,7 +3,7 @@ matplotlib==3.11.2
 numpy==2.5.4
 pandas==3.0.6
 pyyaml==6.0.3
-netcdf4==1.7.4
+netcdf4==1.7.5
 zeep==4.3.3
 cmocean==4.0.3
 xarray==2026.9.0
