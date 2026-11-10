@@ -361,7 +361,7 @@ if args.erddap:
     drifter_years = args.erddap[1:]
     argos_id = args.erddap[0]
     e = ERDDAP( 
-    server = 'http://ecofoci-field.pmel.noaa.gov:8082/erddap',
+    server = 'http://ecofoci-field.pmel.noaa.gov:8080/erddap',
     protocol = 'tabledap',)
 
     e.response = 'csv'
